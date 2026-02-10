@@ -1,29 +1,29 @@
-import { Moon, TrendingDown, Clock, Brain } from "lucide-react";
+import { Thermometer, Shield, Droplets, Sparkles } from "lucide-react";
 
 const features = [
   {
-    icon: Moon,
-    title: "Sleep Need",
+    icon: Thermometer,
+    title: "Self-Cooling Fabric",
     description:
-      "Discover your genetically unique sleep need — the hours your body truly requires, not an arbitrary 8-hour target.",
+      "Silver conducts heat 400x better than cotton, actively moving excess warmth away from your body so you stay cool all night.",
   },
   {
-    icon: TrendingDown,
-    title: "Sleep Debt Tracking",
+    icon: Shield,
+    title: "Self-Cleaning Technology",
     description:
-      "See the running total of sleep you've missed. Reduce it and feel the difference in your energy and focus.",
+      "Lab-tested to prevent 99.9% of bacterial growth. Your sheets stay fresh 3x longer, meaning fewer washes and better hygiene.",
   },
   {
-    icon: Clock,
-    title: "Circadian Rhythm",
+    icon: Droplets,
+    title: "Advanced Moisture Wicking",
     description:
-      "Know your ideal windows for sleeping, waking, and peak performance based on your internal clock.",
+      "Breathable fabric instantly pulls away moisture, keeping you dry and sweat-free throughout the entire night.",
   },
   {
-    icon: Brain,
-    title: "Smart Routines",
+    icon: Sparkles,
+    title: "Luxuriously Soft",
     description:
-      "Personalized schedules designed to address the root causes of poor sleep, not just the symptoms.",
+      "Silky-soft texture that feels as smooth as 5-star hotel sheets while maintaining peak cooling performance.",
   },
 ];
 
@@ -31,14 +31,14 @@ const FeaturesSection = () => {
   return (
     <section id="features" className="py-32">
       <div className="section-container">
-        <p className="text-primary text-sm font-semibold tracking-[0.25em] uppercase text-center mb-4">
-          How It Works
+        <p className="text-primary text-xs font-semibold tracking-[0.3em] uppercase text-center mb-4">
+          Our Technology
         </p>
-        <h2 className="font-serif text-4xl md:text-5xl font-bold text-foreground text-center mb-6">
-          Science-backed sleep
+        <h2 className="text-4xl md:text-5xl font-bold text-foreground text-center mb-6 tracking-tight">
+          Real material science
         </h2>
-        <p className="text-muted-foreground text-lg text-center max-w-2xl mx-auto mb-20">
-          Nearly 100 years of sleep research, distilled into a system that learns your unique biology.
+        <p className="text-muted-foreground text-base text-center max-w-2xl mx-auto mb-20">
+          NASA-inspired silver-infused fabric that adapts to your body's rhythms and keeps you at your ideal temperature.
         </p>
 
         <div className="grid md:grid-cols-2 gap-6">
@@ -47,13 +47,13 @@ const FeaturesSection = () => {
               key={feature.title}
               className="glass-card rounded-2xl p-8 transition-all duration-300 hover:border-primary/30 group"
             >
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:glow-amber transition-shadow duration-300">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-6 transition-shadow duration-300 group-hover:glow-blue">
                 <feature.icon className="w-6 h-6 text-primary" />
               </div>
-              <h3 className="font-serif text-2xl font-semibold text-foreground mb-3">
+              <h3 className="text-xl font-semibold text-foreground mb-3">
                 {feature.title}
               </h3>
-              <p className="text-muted-foreground leading-relaxed">
+              <p className="text-muted-foreground leading-relaxed text-sm">
                 {feature.description}
               </p>
             </div>
