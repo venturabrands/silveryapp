@@ -7,34 +7,34 @@ import {
 
 const faqs = [
   {
-    question: "How does Dreamwell know my sleep need?",
+    question: "What is the ideal bedroom temperature for sleep?",
     answer:
-      "Dreamwell uses data from your phone and/or wearable combined with proprietary models rooted in sleep science to learn your unique sleep biology. These models are widely accepted by researchers in the sleep science field, which is nearly 100 years old.",
+      "The optimal sleep temperature is 60–67°F (15–19°C). Your body must drop its core temperature by 1–2°F to initiate sleep. A cool bedroom facilitates this natural decline and promotes deeper, more restorative sleep that supports skin repair and cellular regeneration.",
   },
   {
-    question: "Does Dreamwell track my sleep stages?",
+    question: "How does the 10-3-2-1-0 rule work?",
     answer:
-      "While we love sleep data, we believe monitoring sleep stages isn't beneficial for becoming a better sleeper. Your brain already optimizes which stages you spend time in. All stages have benefits, so there's no need to stress about REM vs. deep sleep.",
+      "10 hours before bed: no more caffeine. 3 hours before bed: no more food or alcohol. 2 hours before bed: no more work. 1 hour before bed: no more screens. 0: the number of times you hit snooze. This simple framework eliminates common sleep disruptors and dramatically improves sleep quality.",
   },
   {
-    question: "How does Dreamwell help me sleep and feel better?",
+    question: "Why is sleep regularity more important than duration?",
     answer:
-      "We focus on sleep debt — the single metric researchers agree most impacts how you feel and perform. Reduce your sleep debt and you'll feel the difference. We also build personalized routines that address the root causes of poor sleep.",
+      "Research on 300,000+ individuals shows that regularity — keeping sleep-wake times within 15–20 minutes daily — is a stronger predictor of longevity than sleep duration alone. Irregular sleepers who vary by 2+ hours face significantly higher disease and mortality rates.",
   },
   {
-    question: "Is Dreamwell backed by science?",
+    question: "How does silver-infused bedding improve sleep?",
     answer:
-      "Absolutely. Our algorithms are built on peer-reviewed sleep science research spanning decades. We work alongside sleep researchers and use clinically validated approaches to understand your sleep biology.",
+      "Silver is one of the most thermally conductive materials on earth. Woven into fabric, it pulls excess body heat away from your skin and disperses it across the sheet surface. It also naturally inhibits bacterial growth by up to 99.9%, reducing allergens, dust mites, and odors that fragment sleep.",
   },
   {
-    question: "What devices does Dreamwell work with?",
+    question: "What should I include in a wind-down ritual?",
     answer:
-      "Dreamwell works with your phone alone — no wearable required. For enhanced tracking, we integrate with popular wearables and health platforms to give you the most accurate picture of your sleep.",
+      "Start 60–90 minutes before bed. Dim all lights, take a warm bath or shower (the post-bath temperature drop mimics your body's natural pre-sleep decline), write down worries or tomorrow's to-do list, and prepare a cool, fresh sleep surface. This signals your brain to shift from fight-or-flight to rest-and-digest mode.",
   },
   {
-    question: "How is Dreamwell different from other sleep apps?",
+    question: "How does light exposure affect my sleep?",
     answer:
-      "Most sleep apps show you data. Dreamwell tells you what to do about it. We don't just track — we provide actionable guidance based on your unique sleep biology, helping you reduce sleep debt and unlock peak energy.",
+      "Light is the most powerful external regulator of your circadian rhythm. Get bright outdoor sunlight within 30 minutes of waking to set your internal clock. Then dim all lights 2–3 hours before bed and create complete darkness for sleep — even small amounts of light can suppress melatonin and reduce deep sleep quality.",
   },
 ];
 
