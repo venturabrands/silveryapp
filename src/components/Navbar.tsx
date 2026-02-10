@@ -11,10 +11,10 @@ const Navbar = () => {
 
         <div className="hidden md:flex items-center gap-8">
           <a href="#features" className="text-xs font-semibold tracking-[0.15em] uppercase text-muted-foreground hover:text-foreground transition-colors">
-            Technology
+            How It Works
           </a>
           <a href="#science" className="text-xs font-semibold tracking-[0.15em] uppercase text-muted-foreground hover:text-foreground transition-colors">
-            Science
+            The Science
           </a>
           <a href="#faq" className="text-xs font-semibold tracking-[0.15em] uppercase text-muted-foreground hover:text-foreground transition-colors">
             FAQ
@@ -22,7 +22,7 @@ const Navbar = () => {
         </div>
 
         <Button variant="navCta" size="sm">
-          Shop Now
+          Try Free
         </Button>
       </div>
     </nav>
