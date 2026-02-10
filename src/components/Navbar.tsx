@@ -1,13 +1,12 @@
-import { Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import silveryLogo from "@/assets/silvery-logo.png";
 
 const Navbar = () => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
       <div className="section-container flex items-center justify-between h-16">
-        <a href="/" className="flex items-center gap-2 group">
-          <Moon className="w-6 h-6 text-primary transition-transform group-hover:rotate-12" />
-          <span className="font-serif text-xl font-semibold text-foreground">Dreamwell</span>
+        <a href="/" className="flex items-center group">
+          <img src={silveryLogo} alt="Silvery" className="h-8 w-auto" />
         </a>
 
         <div className="hidden md:flex items-center gap-8">
