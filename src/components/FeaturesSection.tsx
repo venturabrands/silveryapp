@@ -21,12 +21,9 @@ const features = [{
 const FeaturesSection = () => {
   return <section id="features" className="pt-0 pb-32 -mt-16">
       <div className="section-container">
-        <p className="text-primary text-sm font-semibold tracking-[0.25em] uppercase text-center mb-4">
-      </p>
-         <h2 className="font-serif text-4xl md:text-5xl font-bold text-foreground text-center mb-6">
-           Features
-         </h2>
-        
+        <h2 className="font-serif text-4xl md:text-5xl font-bold text-foreground text-center mb-10">
+          Features
+        </h2>
 
         <div className="grid md:grid-cols-2 gap-6">
           {features.map(feature => {
