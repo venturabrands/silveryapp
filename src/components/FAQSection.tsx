@@ -7,34 +7,34 @@ import {
 
 const faqs = [
   {
-    question: "How does Dreamwell know my sleep need?",
+    question: "How does silver-infused fabric keep me cool?",
     answer:
-      "Dreamwell uses data from your phone and/or wearable combined with proprietary models rooted in sleep science to learn your unique sleep biology. These models are widely accepted by researchers in the sleep science field, which is nearly 100 years old.",
+      "Silver is one of the most thermally conductive materials on earth — it conducts heat 400x better than cotton. Our fabric actively moves excess warmth away from your body, rather than just absorbing moisture like traditional cooling sheets.",
   },
   {
-    question: "Does Dreamwell track my sleep stages?",
+    question: "Is the self-cleaning claim really proven?",
     answer:
-      "While we love sleep data, we believe monitoring sleep stages isn't beneficial for becoming a better sleeper. Your brain already optimizes which stages you spend time in. All stages have benefits, so there's no need to stress about REM vs. deep sleep.",
+      "Yes. Our fabric has been independently tested by SGS labs and proven to prevent 99.9% of bacterial growth. This means your sheets stay fresh 3x longer between washes, saving you time and water.",
   },
   {
-    question: "How does Dreamwell help me sleep and feel better?",
+    question: "Who is Silvery designed for?",
     answer:
-      "We focus on sleep debt — the single metric researchers agree most impacts how you feel and perform. Reduce your sleep debt and you'll feel the difference. We also build personalized routines that address the root causes of poor sleep.",
+      "Silvery is engineered for anyone who sleeps hot — whether from menopause, hormonal changes, medications, or natural temperature sensitivity. If you've tried cooling sheets that didn't work, our real silver technology is the solution.",
   },
   {
-    question: "Is Dreamwell backed by science?",
+    question: "How does the 100-night trial work?",
     answer:
-      "Absolutely. Our algorithms are built on peer-reviewed sleep science research spanning decades. We work alongside sleep researchers and use clinically validated approaches to understand your sleep biology.",
+      "We're so confident in our technology that we offer a full 100-night risk-free trial. Sleep on our sheets for up to 100 nights. If you're not sleeping cooler and more comfortably, we'll give you a complete refund — no questions asked.",
   },
   {
-    question: "What devices does Dreamwell work with?",
+    question: "What products do you offer?",
     answer:
-      "Dreamwell works with your phone alone — no wearable required. For enhanced tracking, we integrate with popular wearables and health platforms to give you the most accurate picture of your sleep.",
+      "We offer a complete silver-infused bedding system: bed sheets, a cooling comforter, bed pillows, and a mattress protector. Each product uses our proprietary silver-infused fabric technology for superior cooling and self-cleaning performance.",
   },
   {
-    question: "How is Dreamwell different from other sleep apps?",
+    question: "How do I care for Silvery sheets?",
     answer:
-      "Most sleep apps show you data. Dreamwell tells you what to do about it. We don't just track — we provide actionable guidance based on your unique sleep biology, helping you reduce sleep debt and unlock peak energy.",
+      "Simply machine wash in cold water and tumble dry on low heat. The silver-infused technology is woven into the fabric, so it won't wash out. Avoid bleach and fabric softeners to maintain peak performance.",
   },
 ];
 
@@ -42,10 +42,10 @@ const FAQSection = () => {
   return (
     <section id="faq" className="py-32 border-t border-border/30">
       <div className="section-container">
-        <p className="text-primary text-sm font-semibold tracking-[0.25em] uppercase text-center mb-4">
+        <p className="text-primary text-xs font-semibold tracking-[0.3em] uppercase text-center mb-4">
           FAQ
         </p>
-        <h2 className="font-serif text-4xl md:text-5xl font-bold text-foreground text-center mb-16">
+        <h2 className="text-4xl md:text-5xl font-bold text-foreground text-center mb-16 tracking-tight">
           Common questions
         </h2>
 
@@ -56,10 +56,10 @@ const FAQSection = () => {
               value={`item-${i}`}
               className="glass-card rounded-xl px-6 border border-border/50 data-[state=open]:border-primary/30 transition-colors"
             >
-              <AccordionTrigger className="text-left font-serif text-lg font-medium text-foreground hover:no-underline py-5">
+              <AccordionTrigger className="text-left text-base font-semibold text-foreground hover:no-underline py-5">
                 {faq.question}
               </AccordionTrigger>
-              <AccordionContent className="text-muted-foreground leading-relaxed pb-5">
+              <AccordionContent className="text-muted-foreground leading-relaxed pb-5 text-sm">
                 {faq.answer}
               </AccordionContent>
             </AccordionItem>
