@@ -37,12 +37,9 @@ const HeroSection = () => {
           Understand your sleep patterns, reduce sleep debt, and unlock the energy your body is designed to have.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-up-delay-3">
+        <div className="flex justify-center animate-fade-up-delay-3">
           <Button variant="hero" size="lg" onClick={() => navigate("/auth")}>
             Start Sleeping Better
-          </Button>
-          <Button variant="outline" size="lg" className="rounded-full border-border/60 text-foreground hover:bg-muted">
-            Learn More
           </Button>
         </div>
       </div>

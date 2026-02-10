@@ -21,10 +21,6 @@ const Navbar = () => {
             FAQ
           </a>
         </div>
-
-        <Button variant="navCta" size="sm">
-          Try Free
-        </Button>
       </div>
     </nav>
   );
