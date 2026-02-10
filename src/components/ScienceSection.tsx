@@ -6,7 +6,7 @@ const stats = [
 
 const ScienceSection = () => {
   return (
-    <section id="science" className="py-32 border-t border-border/30">
+    <section id="science" className="py-24 border-t border-border/30">
       <div className="section-container">
         <p className="text-primary text-sm font-semibold tracking-[0.25em] uppercase text-center mb-4">
           The Science

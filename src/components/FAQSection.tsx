@@ -40,7 +40,7 @@ const faqs = [
 
 const FAQSection = () => {
   return (
-    <section id="faq" className="py-32 border-t border-border/30">
+    <section id="faq" className="py-24 border-t border-border/30">
       <div className="section-container">
         <p className="text-primary text-sm font-semibold tracking-[0.25em] uppercase text-center mb-4">
           FAQ
