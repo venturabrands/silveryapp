@@ -1,4 +1,4 @@
-import { Moon, MessageCircle, LogOut, BarChart3, BedDouble, Clock } from "lucide-react";
+import { Moon, MessageCircle, LogOut, BarChart3, Activity, CalendarClock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { Link, useNavigate } from "react-router-dom";
@@ -79,33 +79,33 @@ const Dashboard = () => {
 
           <div className="glass-card rounded-2xl p-6 opacity-60 cursor-default">
             <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center mb-4">
+              <Activity className="w-6 h-6 text-accent" />
+            </div>
+            <h3 className="font-serif text-xl font-semibold text-foreground mb-2">Track Everything</h3>
+            <p className="text-muted-foreground text-sm">
+              Monitor your sleep duration, quality, and patterns over time. See the data that matters.
+            </p>
+            <span className="text-xs text-primary font-medium mt-3 inline-block">Coming Soon</span>
+          </div>
+
+          <div className="glass-card rounded-2xl p-6 opacity-60 cursor-default">
+            <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center mb-4">
+              <CalendarClock className="w-6 h-6 text-accent" />
+            </div>
+            <h3 className="font-serif text-xl font-semibold text-foreground mb-2">Personalized Sleep Schedules</h3>
+            <p className="text-muted-foreground text-sm">
+              Get a custom wind-down and wake-up plan built around your lifestyle and goals.
+            </p>
+            <span className="text-xs text-primary font-medium mt-3 inline-block">Coming Soon</span>
+          </div>
+
+          <div className="glass-card rounded-2xl p-6 opacity-60 cursor-default">
+            <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center mb-4">
               <BarChart3 className="w-6 h-6 text-accent" />
             </div>
-            <h3 className="font-serif text-xl font-semibold text-foreground mb-2">Sleep Insights</h3>
+            <h3 className="font-serif text-xl font-semibold text-foreground mb-2">Analytics</h3>
             <p className="text-muted-foreground text-sm">
-              Track your sleep patterns and get data-driven recommendations.
-            </p>
-            <span className="text-xs text-primary font-medium mt-3 inline-block">Coming Soon</span>
-          </div>
-
-          <div className="glass-card rounded-2xl p-6 opacity-60 cursor-default">
-            <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center mb-4">
-              <BedDouble className="w-6 h-6 text-accent" />
-            </div>
-            <h3 className="font-serif text-xl font-semibold text-foreground mb-2">Bedding Guide</h3>
-            <p className="text-muted-foreground text-sm">
-              Find the perfect bedding setup based on your sleep preferences.
-            </p>
-            <span className="text-xs text-primary font-medium mt-3 inline-block">Coming Soon</span>
-          </div>
-
-          <div className="glass-card rounded-2xl p-6 opacity-60 cursor-default">
-            <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center mb-4">
-              <Clock className="w-6 h-6 text-accent" />
-            </div>
-            <h3 className="font-serif text-xl font-semibold text-foreground mb-2">Wind-Down Routine</h3>
-            <p className="text-muted-foreground text-sm">
-              Build a personalized bedtime routine for better sleep quality.
+              Deep-dive into weekly and monthly trends with clear, visual insights.
             </p>
             <span className="text-xs text-primary font-medium mt-3 inline-block">Coming Soon</span>
           </div>
