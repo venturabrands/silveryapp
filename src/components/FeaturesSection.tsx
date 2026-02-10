@@ -22,7 +22,7 @@ const FeaturesSection = () => {
   return <section id="features" className="pt-8 pb-32">
       <div className="section-container">
         <h2 className="font-serif text-4xl md:text-5xl font-bold text-foreground text-center mb-10">
-          Features
+           App Features
         </h2>
 
         <div className="grid md:grid-cols-2 gap-6">
