@@ -1,55 +1,35 @@
 import { Activity, CalendarClock, MessageCircle, BarChart3 } from "lucide-react";
 import { Link } from "react-router-dom";
-
-const features = [
-  {
-    icon: Activity,
-    title: "Track Everything",
-    description:
-      "Monitor your sleep duration, quality, and patterns over time. See the data that matters — from time in bed to restfulness scores.",
-  },
-  {
-    icon: CalendarClock,
-    title: "Personalized Sleep Schedules",
-    description:
-      "Get a custom wind-down and wake-up plan built around your lifestyle, chronotype, and goals. No more one-size-fits-all advice.",
-  },
-  {
-    icon: MessageCircle,
-    title: "Sleep Chat",
-    description:
-      "Chat with Silvery's Sleep Guide — your friendly AI companion for sleep tips, bedding advice, and building better nighttime routines.",
-    link: "/sleep-chat",
-  },
-  {
-    icon: BarChart3,
-    title: "Analytics",
-    description:
-      "Deep-dive into weekly and monthly trends. Understand what's helping and what's hurting your sleep with clear, visual insights.",
-  },
-];
-
+const features = [{
+  icon: Activity,
+  title: "Track Everything",
+  description: "Monitor your sleep duration, quality, and patterns over time. See the data that matters — from time in bed to restfulness scores."
+}, {
+  icon: CalendarClock,
+  title: "Personalized Sleep Schedules",
+  description: "Get a custom wind-down and wake-up plan built around your lifestyle, chronotype, and goals. No more one-size-fits-all advice."
+}, {
+  icon: MessageCircle,
+  title: "Sleep Chat",
+  description: "Chat with Silvery's Sleep Guide — your friendly AI companion for sleep tips, bedding advice, and building better nighttime routines.",
+  link: "/sleep-chat"
+}, {
+  icon: BarChart3,
+  title: "Analytics",
+  description: "Deep-dive into weekly and monthly trends. Understand what's helping and what's hurting your sleep with clear, visual insights."
+}];
 const FeaturesSection = () => {
-  return (
-    <section id="features" className="py-32">
+  return <section id="features" className="py-32">
       <div className="section-container">
         <p className="text-primary text-sm font-semibold tracking-[0.25em] uppercase text-center mb-4">
-          How It Works
-        </p>
+      </p>
         <h2 className="font-serif text-4xl md:text-5xl font-bold text-foreground text-center mb-6">
-          Science-backed sleep
-        </h2>
-        <p className="text-muted-foreground text-lg text-center max-w-2xl mx-auto mb-20">
-          Nearly 100 years of sleep research, distilled into a system that learns your unique biology.
-        </p>
+      </h2>
+        
 
         <div className="grid md:grid-cols-2 gap-6">
-          {features.map((feature) => {
-            const Card = (
-              <div
-                key={feature.title}
-                className="glass-card rounded-2xl p-8 transition-all duration-300 hover:border-primary/30 group cursor-pointer"
-              >
+          {features.map(feature => {
+          const Card = <div key={feature.title} className="glass-card rounded-2xl p-8 transition-all duration-300 hover:border-primary/30 group cursor-pointer">
                 <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:glow-amber transition-shadow duration-300">
                   <feature.icon className="w-6 h-6 text-primary" />
                 </div>
@@ -59,23 +39,16 @@ const FeaturesSection = () => {
                 <p className="text-muted-foreground leading-relaxed">
                   {feature.description}
                 </p>
-              </div>
-            );
-
-            if (feature.link) {
-              return (
-                <Link key={feature.title} to={feature.link} className="no-underline">
+              </div>;
+          if (feature.link) {
+            return <Link key={feature.title} to={feature.link} className="no-underline">
                   {Card}
-                </Link>
-              );
-            }
-
-            return Card;
-          })}
+                </Link>;
+          }
+          return Card;
+        })}
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default FeaturesSection;
