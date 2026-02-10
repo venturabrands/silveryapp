@@ -31,13 +31,13 @@ const FeaturesSection = () => {
   return (
     <section id="features" className="py-32">
       <div className="section-container">
-        <p className="text-primary text-xs font-semibold tracking-[0.3em] uppercase text-center mb-4">
+        <p className="text-primary text-sm font-semibold tracking-[0.25em] uppercase text-center mb-4">
           How It Works
         </p>
-        <h2 className="text-4xl md:text-5xl font-bold text-foreground text-center mb-6 tracking-tight">
+        <h2 className="font-serif text-4xl md:text-5xl font-bold text-foreground text-center mb-6">
           Science-backed sleep
         </h2>
-        <p className="text-muted-foreground text-base text-center max-w-2xl mx-auto mb-20">
+        <p className="text-muted-foreground text-lg text-center max-w-2xl mx-auto mb-20">
           Nearly 100 years of sleep research, distilled into a system that learns your unique biology.
         </p>
 
@@ -47,13 +47,13 @@ const FeaturesSection = () => {
               key={feature.title}
               className="glass-card rounded-2xl p-8 transition-all duration-300 hover:border-primary/30 group"
             >
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-6 transition-shadow duration-300 group-hover:glow-blue">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:glow-amber transition-shadow duration-300">
                 <feature.icon className="w-6 h-6 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold text-foreground mb-3">
+              <h3 className="font-serif text-2xl font-semibold text-foreground mb-3">
                 {feature.title}
               </h3>
-              <p className="text-muted-foreground leading-relaxed text-sm">
+              <p className="text-muted-foreground leading-relaxed">
                 {feature.description}
               </p>
             </div>

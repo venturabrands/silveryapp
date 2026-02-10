@@ -9,28 +9,28 @@ const HeroSection = () => {
         <img
           src={heroImage}
           alt="Serene night sky"
-          className="w-full h-full object-cover opacity-30"
+          className="w-full h-full object-cover opacity-40"
         />
         <div
           className="absolute inset-0"
           style={{ background: "var(--gradient-hero)" }}
         />
-        <div className="absolute inset-0 bg-background/40" />
+        <div className="absolute inset-0 bg-background/30" />
       </div>
 
       {/* Content */}
       <div className="relative z-10 section-container text-center py-32">
-        <p className="text-primary font-semibold text-xs tracking-[0.3em] uppercase mb-8 animate-fade-up">
+        <p className="text-primary font-sans text-sm font-semibold tracking-[0.25em] uppercase mb-6 animate-fade-up">
           Sleep Better · Feel Better
         </p>
 
-        <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-foreground leading-[1.05] mb-8 tracking-tight animate-fade-up-delay-1">
+        <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-bold text-foreground leading-[1.1] mb-8 animate-fade-up-delay-1">
           Your best days
           <br />
-          <span className="gradient-text-blue">start tonight</span>
+          <span className="gradient-text">start tonight</span>
         </h1>
 
-        <p className="max-w-xl mx-auto text-base md:text-lg text-muted-foreground leading-relaxed mb-12 animate-fade-up-delay-2">
+        <p className="max-w-xl mx-auto text-lg md:text-xl text-muted-foreground leading-relaxed mb-12 animate-fade-up-delay-2">
           Understand your sleep patterns, reduce sleep debt, and unlock the energy your body is designed to have.
         </p>
 
