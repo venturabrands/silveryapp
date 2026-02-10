@@ -1,7 +1,7 @@
 const stats = [
-  { value: "400x", label: "better heat conductivity than cotton" },
-  { value: "99.9%", label: "of bacterial growth prevented" },
-  { value: "25,000+", label: "happy sleepers worldwide" },
+  { value: "80%", label: "of users feel more energy within 5 days" },
+  { value: "45min", label: "average sleep debt reduced per week" },
+  { value: "97%", label: "accuracy in predicting your sleep need" },
 ];
 
 const ScienceSection = () => {
@@ -12,10 +12,10 @@ const ScienceSection = () => {
           The Science
         </p>
         <h2 className="text-4xl md:text-5xl font-bold text-foreground text-center mb-6 tracking-tight">
-          Proven, not promised
+          Built on real research
         </h2>
         <p className="text-muted-foreground text-base text-center max-w-2xl mx-auto mb-20">
-          Every claim is validated through rigorous independent testing by SGS labs. We deliver results, not marketing promises.
+          Sleep debt is the single metric sleep researchers agree most impacts how you feel and perform. We focus on what actually works.
         </p>
 
         <div className="grid md:grid-cols-3 gap-8">

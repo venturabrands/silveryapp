@@ -1,29 +1,29 @@
-import { Thermometer, Shield, Droplets, Sparkles } from "lucide-react";
+import { Moon, TrendingDown, Clock, Brain } from "lucide-react";
 
 const features = [
   {
-    icon: Thermometer,
-    title: "Self-Cooling Fabric",
+    icon: Moon,
+    title: "Sleep Need",
     description:
-      "Silver conducts heat 400x better than cotton, actively moving excess warmth away from your body so you stay cool all night.",
+      "Discover your genetically unique sleep need — the hours your body truly requires, not an arbitrary 8-hour target.",
   },
   {
-    icon: Shield,
-    title: "Self-Cleaning Technology",
+    icon: TrendingDown,
+    title: "Sleep Debt Tracking",
     description:
-      "Lab-tested to prevent 99.9% of bacterial growth. Your sheets stay fresh 3x longer, meaning fewer washes and better hygiene.",
+      "See the running total of sleep you've missed. Reduce it and feel the difference in your energy and focus.",
   },
   {
-    icon: Droplets,
-    title: "Advanced Moisture Wicking",
+    icon: Clock,
+    title: "Circadian Rhythm",
     description:
-      "Breathable fabric instantly pulls away moisture, keeping you dry and sweat-free throughout the entire night.",
+      "Know your ideal windows for sleeping, waking, and peak performance based on your internal clock.",
   },
   {
-    icon: Sparkles,
-    title: "Luxuriously Soft",
+    icon: Brain,
+    title: "Smart Routines",
     description:
-      "Silky-soft texture that feels as smooth as 5-star hotel sheets while maintaining peak cooling performance.",
+      "Personalized schedules designed to address the root causes of poor sleep, not just the symptoms.",
   },
 ];
 
@@ -32,13 +32,13 @@ const FeaturesSection = () => {
     <section id="features" className="py-32">
       <div className="section-container">
         <p className="text-primary text-xs font-semibold tracking-[0.3em] uppercase text-center mb-4">
-          Our Technology
+          How It Works
         </p>
         <h2 className="text-4xl md:text-5xl font-bold text-foreground text-center mb-6 tracking-tight">
-          Real material science
+          Science-backed sleep
         </h2>
         <p className="text-muted-foreground text-base text-center max-w-2xl mx-auto mb-20">
-          NASA-inspired silver-infused fabric that adapts to your body's rhythms and keeps you at your ideal temperature.
+          Nearly 100 years of sleep research, distilled into a system that learns your unique biology.
         </p>
 
         <div className="grid md:grid-cols-2 gap-6">

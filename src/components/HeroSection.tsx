@@ -21,33 +21,27 @@ const HeroSection = () => {
       {/* Content */}
       <div className="relative z-10 section-container text-center py-32">
         <p className="text-primary font-semibold text-xs tracking-[0.3em] uppercase mb-8 animate-fade-up">
-          Silver-Infused Sleep Technology
+          Sleep Better · Feel Better
         </p>
 
         <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-foreground leading-[1.05] mb-8 tracking-tight animate-fade-up-delay-1">
-          Smart bedding
+          Your best days
           <br />
-          <span className="gradient-text-blue">engineered for</span>
-          <br />
-          <span className="gradient-text-blue">hot sleepers</span>
+          <span className="gradient-text-blue">start tonight</span>
         </h1>
 
         <p className="max-w-xl mx-auto text-base md:text-lg text-muted-foreground leading-relaxed mb-12 animate-fade-up-delay-2">
-          Discover silver-infused bedding that cools you down, stays clean longer, and feels luxuriously soft all night.
+          Understand your sleep patterns, reduce sleep debt, and unlock the energy your body is designed to have.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-up-delay-3">
           <Button variant="hero" size="lg">
-            Shop Now
+            Start Sleeping Better
           </Button>
           <Button variant="outline" size="lg" className="rounded-full border-border/60 text-foreground hover:bg-muted">
-            Take the Quiz
+            Learn More
           </Button>
         </div>
-
-        <p className="mt-8 text-xs text-muted-foreground tracking-wide animate-fade-up-delay-3">
-          100-Night Risk-Free Trial · Free Shipping & Returns
-        </p>
       </div>
     </section>
   );

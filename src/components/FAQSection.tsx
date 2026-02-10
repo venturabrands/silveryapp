@@ -7,34 +7,34 @@ import {
 
 const faqs = [
   {
-    question: "How does silver-infused fabric keep me cool?",
+    question: "How does Silvery know my sleep need?",
     answer:
-      "Silver is one of the most thermally conductive materials on earth — it conducts heat 400x better than cotton. Our fabric actively moves excess warmth away from your body, rather than just absorbing moisture like traditional cooling sheets.",
+      "Silvery uses data from your phone and/or wearable combined with proprietary models rooted in sleep science to learn your unique sleep biology. These models are widely accepted by researchers in the sleep science field, which is nearly 100 years old.",
   },
   {
-    question: "Is the self-cleaning claim really proven?",
+    question: "Does Silvery track my sleep stages?",
     answer:
-      "Yes. Our fabric has been independently tested by SGS labs and proven to prevent 99.9% of bacterial growth. This means your sheets stay fresh 3x longer between washes, saving you time and water.",
+      "While we love sleep data, we believe monitoring sleep stages isn't beneficial for becoming a better sleeper. Your brain already optimizes which stages you spend time in. All stages have benefits, so there's no need to stress about REM vs. deep sleep.",
   },
   {
-    question: "Who is Silvery designed for?",
+    question: "How does Silvery help me sleep and feel better?",
     answer:
-      "Silvery is engineered for anyone who sleeps hot — whether from menopause, hormonal changes, medications, or natural temperature sensitivity. If you've tried cooling sheets that didn't work, our real silver technology is the solution.",
+      "We focus on sleep debt — the single metric researchers agree most impacts how you feel and perform. Reduce your sleep debt and you'll feel the difference. We also build personalized routines that address the root causes of poor sleep.",
   },
   {
-    question: "How does the 100-night trial work?",
+    question: "Is Silvery backed by science?",
     answer:
-      "We're so confident in our technology that we offer a full 100-night risk-free trial. Sleep on our sheets for up to 100 nights. If you're not sleeping cooler and more comfortably, we'll give you a complete refund — no questions asked.",
+      "Absolutely. Our algorithms are built on peer-reviewed sleep science research spanning decades. We work alongside sleep researchers and use clinically validated approaches to understand your sleep biology.",
   },
   {
-    question: "What products do you offer?",
+    question: "What devices does Silvery work with?",
     answer:
-      "We offer a complete silver-infused bedding system: bed sheets, a cooling comforter, bed pillows, and a mattress protector. Each product uses our proprietary silver-infused fabric technology for superior cooling and self-cleaning performance.",
+      "Silvery works with your phone alone — no wearable required. For enhanced tracking, we integrate with popular wearables and health platforms to give you the most accurate picture of your sleep.",
   },
   {
-    question: "How do I care for Silvery sheets?",
+    question: "How is Silvery different from other sleep apps?",
     answer:
-      "Simply machine wash in cold water and tumble dry on low heat. The silver-infused technology is woven into the fabric, so it won't wash out. Avoid bleach and fabric softeners to maintain peak performance.",
+      "Most sleep apps show you data. Silvery tells you what to do about it. We don't just track — we provide actionable guidance based on your unique sleep biology, helping you reduce sleep debt and unlock peak energy.",
   },
 ];
 
