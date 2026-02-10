@@ -19,7 +19,7 @@ const features = [{
   description: "Deep-dive into weekly and monthly trends. Understand what's helping and what's hurting your sleep with clear, visual insights."
 }];
 const FeaturesSection = () => {
-  return <section id="features" className="py-32">
+  return <section id="features" className="pt-12 pb-32">
       <div className="section-container">
         <p className="text-primary text-sm font-semibold tracking-[0.25em] uppercase text-center mb-4">
       </p>
