@@ -38,30 +38,6 @@ export type Database = {
         }
         Relationships: []
       }
-      claim_codes: {
-        Row: {
-          code: string
-          created_at: string
-          is_redeemed: boolean
-          redeemed_at: string | null
-          redeemed_by: string | null
-        }
-        Insert: {
-          code: string
-          created_at?: string
-          is_redeemed?: boolean
-          redeemed_at?: string | null
-          redeemed_by?: string | null
-        }
-        Update: {
-          code?: string
-          created_at?: string
-          is_redeemed?: boolean
-          redeemed_at?: string | null
-          redeemed_by?: string | null
-        }
-        Relationships: []
-      }
       conversations: {
         Row: {
           created_at: string
@@ -82,36 +58,6 @@ export type Database = {
           id?: string
           title?: string | null
           updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      entitlements: {
-        Row: {
-          active: boolean
-          created_at: string
-          expires_at: string | null
-          id: string
-          source: string
-          type: string
-          user_id: string
-        }
-        Insert: {
-          active?: boolean
-          created_at?: string
-          expires_at?: string | null
-          id?: string
-          source: string
-          type?: string
-          user_id: string
-        }
-        Update: {
-          active?: boolean
-          created_at?: string
-          expires_at?: string | null
-          id?: string
-          source?: string
-          type?: string
           user_id?: string
         }
         Relationships: []
