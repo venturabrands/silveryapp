@@ -77,24 +77,25 @@ const Dashboard = () => {
             </div>
           </Link>
 
+          <Link to="/sleep-diary" className="block">
+            <div className="glass-card rounded-2xl p-6 hover:border-primary/30 transition-colors cursor-pointer group">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:glow-amber transition-shadow">
+                <CalendarClock className="w-6 h-6 text-primary" />
+              </div>
+              <h3 className="font-serif text-xl font-semibold text-foreground mb-2">Sleep Diary</h3>
+              <p className="text-muted-foreground text-sm">
+                Track your weekly sleep schedule, habits, and efficiency in your personal diary.
+              </p>
+            </div>
+          </Link>
+
           <div className="glass-card rounded-2xl p-6 opacity-60 cursor-default">
             <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center mb-4">
               <Activity className="w-6 h-6 text-accent" />
             </div>
-            <h3 className="font-serif text-xl font-semibold text-foreground mb-2">Track Everything</h3>
+            <h3 className="font-serif text-xl font-semibold text-foreground mb-2">Sleep Analytics</h3>
             <p className="text-muted-foreground text-sm">
-              Monitor your sleep duration, quality, and patterns over time. See the data that matters.
-            </p>
-            <span className="text-xs text-primary font-medium mt-3 inline-block">Coming Soon</span>
-          </div>
-
-          <div className="glass-card rounded-2xl p-6 opacity-60 cursor-default">
-            <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center mb-4">
-              <CalendarClock className="w-6 h-6 text-accent" />
-            </div>
-            <h3 className="font-serif text-xl font-semibold text-foreground mb-2">Personalized Sleep Schedules</h3>
-            <p className="text-muted-foreground text-sm">
-              Get a custom wind-down and wake-up plan built around your lifestyle and goals.
+              Deep-dive into trends and insights based on your diary data.
             </p>
             <span className="text-xs text-primary font-medium mt-3 inline-block">Coming Soon</span>
           </div>
