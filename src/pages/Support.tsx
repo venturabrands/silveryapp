@@ -59,6 +59,7 @@ const Support = () => {
           <div className="space-y-2">
             <Link to="/privacy" className="block text-sm text-primary hover:underline">Privacy Policy</Link>
             <Link to="/terms" className="block text-sm text-primary hover:underline">Terms of Service</Link>
+            <Link to="/disclaimer" className="block text-sm text-primary hover:underline">Medical Disclaimer</Link>
           </div>
         </div>
       </main>
