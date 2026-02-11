@@ -111,7 +111,7 @@ const Account = () => {
               {entitled ? (
                 <div className="space-y-1">
                   <p className="text-sm text-primary font-medium">
-                    ✓ {entitlement?.type === "LIFETIME_SILVERY_CUSTOMER" ? "Lifetime Access" : "Active Subscriber"}
+                    ✓ Silvery Activated — Lifetime Access
                   </p>
                   <p className="text-xs text-muted-foreground">
                     Source: {entitlement?.source} • Since {new Date(entitlement!.created_at).toLocaleDateString()}
@@ -123,7 +123,7 @@ const Account = () => {
                   )}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">No active subscription. Redeem a code below or subscribe to access all features.</p>
+                <p className="text-sm text-muted-foreground">Limited access. Enter your Silvery activation code below to unlock full features.</p>
               )}
             </div>
 

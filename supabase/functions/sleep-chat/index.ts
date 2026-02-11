@@ -1,10 +1,13 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
+
+const FREE_MESSAGE_LIMIT = 1;
 
 const SYSTEM_PROMPT = `You are Silvery's Sleep Guide — a friendly, patient, and warm sleep companion.
 
@@ -41,6 +44,62 @@ serve(async (req) => {
   }
 
   try {
+    const authHeader = req.headers.get("Authorization");
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+    // Authenticate user
+    let userId: string | null = null;
+
+    if (authHeader?.startsWith("Bearer ")) {
+      const userClient = createClient(supabaseUrl, supabaseAnonKey, {
+        global: { headers: { Authorization: authHeader } },
+      });
+      const token = authHeader.replace("Bearer ", "");
+      const { data, error } = await userClient.auth.getClaims(token);
+      if (!error && data?.claims?.sub) {
+        userId = data.claims.sub;
+      }
+    }
+
+    if (!userId) {
+      return new Response(
+        JSON.stringify({ error: "Not authenticated" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Check entitlement server-side
+    const adminClient = createClient(supabaseUrl, supabaseServiceKey);
+
+    const { data: entitlement } = await adminClient
+      .from("entitlements")
+      .select("type, active")
+      .eq("user_id", userId)
+      .eq("active", true)
+      .eq("type", "LIFETIME_SILVERY_CUSTOMER")
+      .maybeSingle();
+
+    const hasFullAccess = !!entitlement;
+
+    // If no full access, check free message count
+    if (!hasFullAccess) {
+      const { data: profile } = await adminClient
+        .from("profiles")
+        .select("free_messages_used")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      const used = profile?.free_messages_used ?? 0;
+      if (used >= FREE_MESSAGE_LIMIT) {
+        return new Response(
+          JSON.stringify({ error: "Free preview exhausted. Enter a Silvery code for full access." }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
     const { messages } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
