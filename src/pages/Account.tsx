@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Moon, ArrowLeft, Shield, LogOut, Loader2, Trash2, MessageCircle } from "lucide-react";
+import { Moon, ArrowLeft, Shield, LogOut, Loader2, Trash2, MessageCircle, HelpCircle, UserX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -138,6 +138,27 @@ const Account = () => {
                   ))
                 )}
               </div>
+            </div>
+
+            {/* Support */}
+            <Link to="/support">
+              <Button variant="outline" className="w-full rounded-xl">
+                <HelpCircle className="w-4 h-4 mr-2" />
+                Support & Legal
+              </Button>
+            </Link>
+
+            {/* Delete Account */}
+            <div className="glass-card rounded-2xl p-6 space-y-3">
+              <div className="flex items-center gap-2">
+                <UserX className="w-5 h-5 text-destructive" />
+                <h3 className="font-serif text-lg font-semibold text-foreground">Delete Account</h3>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                To permanently delete your account and all associated data, please email{" "}
+                <a href="mailto:support@silvery.com" className="text-primary hover:underline">support@silvery.com</a>{" "}
+                with the subject "Delete my account" from your registered email address.
+              </p>
             </div>
 
             {/* Sign Out */}

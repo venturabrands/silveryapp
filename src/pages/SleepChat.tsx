@@ -6,6 +6,7 @@ import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { trackEvent } from "@/lib/analytics";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -170,6 +171,7 @@ const SleepChat = () => {
       console.error("Failed to create conversation:", error);
       return null;
     }
+    trackEvent(user.id, "conversation_created");
     return data.id;
   };
 
@@ -206,6 +208,7 @@ const SleepChat = () => {
       startNewConversation();
     }
     loadConversations();
+    trackEvent(user?.id, "conversation_deleted");
     toast.success("Conversation deleted");
   };
 
@@ -215,6 +218,8 @@ const SleepChat = () => {
       if (text.length > 2000) toast.error("Message too long (max 2000 characters)");
       return;
     }
+
+    trackEvent(user?.id, "message_sent");
 
     const userMsg: Msg = { role: "user", content: text };
     setInput("");
@@ -267,7 +272,11 @@ const SleepChat = () => {
       });
     } catch (e) {
       console.error(e);
-      toast.error("Something went wrong. Please try again.");
+      const errorMsg = !navigator.onLine
+        ? "You appear to be offline. Check your connection and try again."
+        : "Something went wrong. Please try again.";
+      toast.error(errorMsg);
+      trackEvent(user?.id, "error_shown", { error: errorMsg });
       setIsLoading(false);
     }
   };

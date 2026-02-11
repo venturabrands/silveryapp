@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import InstallBanner from "@/components/InstallBanner";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -12,6 +13,9 @@ import SleepChat from "./pages/SleepChat";
 import SleepDiary from "./pages/SleepDiary";
 import Account from "./pages/Account";
 import Admin from "./pages/Admin";
+import Support from "./pages/Support";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,9 +35,12 @@ const App = () => (
             <Route path="/sleep-diary" element={<ProtectedRoute><SleepDiary /></ProtectedRoute>} />
             <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="/support" element={<Support />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <InstallBanner />
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
