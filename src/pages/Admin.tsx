@@ -3,12 +3,10 @@ import { ArrowLeft, Search, Shield, AlertTriangle, Loader2, Users } from "lucide
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Admin = () => {
-  const { user } = useAuth();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [searchEmail, setSearchEmail] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
@@ -17,11 +15,14 @@ const Admin = () => {
   const [logsLoading, setLogsLoading] = useState(false);
 
   useEffect(() => {
-    if (!user) return;
-    supabase
-      .rpc("has_role", { _user_id: user.id, _role: "admin" })
-      .then(({ data, error }) => setIsAdmin(!error && data === true));
-  }, [user]);
+    const check = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) { setIsAdmin(false); return; }
+      const { data, error } = await supabase.rpc("has_role", { _user_id: session.user.id, _role: "admin" });
+      setIsAdmin(!error && data === true);
+    };
+    check();
+  }, []);
 
   const searchUsers = async () => {
     if (!searchEmail.trim()) return;

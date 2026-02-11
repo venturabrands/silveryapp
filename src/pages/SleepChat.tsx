@@ -5,8 +5,6 @@ import { Link } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
-import { trackEvent } from "@/lib/analytics";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -106,7 +104,6 @@ interface Conversation {
 }
 
 const SleepChat = () => {
-  const { user } = useAuth();
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -116,14 +113,15 @@ const SleepChat = () => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  // Load most recent conversation on mount
   useEffect(() => {
-    if (!user) return;
     const load = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) { setLoadingHistory(false); return; }
+      const userId = session.user.id;
       const { data: conv } = await supabase
         .from("conversations")
         .select("id")
-        .eq("user_id", user.id)
+        .eq("user_id", userId)
         .order("updated_at", { ascending: false })
         .limit(1)
         .maybeSingle();
@@ -142,15 +140,15 @@ const SleepChat = () => {
       setLoadingHistory(false);
     };
     load();
-  }, [user]);
+  }, []);
 
-  // Load conversation list for sidebar
   const loadConversations = async () => {
-    if (!user) return;
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) return;
     const { data } = await supabase
       .from("conversations")
       .select("id, title, updated_at")
-      .eq("user_id", user.id)
+      .eq("user_id", session.user.id)
       .order("updated_at", { ascending: false })
       .limit(20);
     setConversations((data || []) as Conversation[]);
@@ -161,17 +159,17 @@ const SleepChat = () => {
   }, [messages]);
 
   const createConversation = async (): Promise<string | null> => {
-    if (!user) return null;
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) return null;
     const { data, error } = await supabase
       .from("conversations")
-      .insert({ user_id: user.id, title: "Sleep Chat" })
+      .insert({ user_id: session.user.id, title: "Sleep Chat" })
       .select("id")
       .single();
     if (error || !data) {
       console.error("Failed to create conversation:", error);
       return null;
     }
-    trackEvent(user.id, "conversation_created");
     return data.id;
   };
 
@@ -208,7 +206,6 @@ const SleepChat = () => {
       startNewConversation();
     }
     loadConversations();
-    trackEvent(user?.id, "conversation_deleted");
     toast.success("Conversation deleted");
   };
 
@@ -218,8 +215,6 @@ const SleepChat = () => {
       if (text.length > 2000) toast.error("Message too long (max 2000 characters)");
       return;
     }
-
-    trackEvent(user?.id, "message_sent");
 
     const userMsg: Msg = { role: "user", content: text };
     setInput("");
@@ -242,7 +237,7 @@ const SleepChat = () => {
 
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.access_token) {
-      toast.error("Please sign in to continue chatting");
+      toast.error("Session expired. Please refresh the page.");
       setIsLoading(false);
       return;
     }
@@ -281,7 +276,6 @@ const SleepChat = () => {
         ? "You appear to be offline. Check your connection and try again."
         : "Something went wrong. Please try again.";
       toast.error(errorMsg);
-      trackEvent(user?.id, "error_shown", { error: errorMsg });
       setIsLoading(false);
     }
   };

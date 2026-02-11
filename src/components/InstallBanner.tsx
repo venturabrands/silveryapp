@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { X, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/useAuth";
-import { trackEvent } from "@/lib/analytics";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -10,13 +8,11 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 const InstallBanner = () => {
-  const { user } = useAuth();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [dismissed, setDismissed] = useState(false);
   const [installed, setInstalled] = useState(false);
 
   useEffect(() => {
-    // Check if already dismissed
     if (localStorage.getItem("pwa-install-dismissed")) {
       setDismissed(true);
     }
@@ -24,13 +20,11 @@ const InstallBanner = () => {
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
-      trackEvent(user?.id, "pwa_install_prompted");
     };
 
     const installedHandler = () => {
       setInstalled(true);
       setDeferredPrompt(null);
-      trackEvent(user?.id, "pwa_installed");
     };
 
     window.addEventListener("beforeinstallprompt", handler);
@@ -40,7 +34,7 @@ const InstallBanner = () => {
       window.removeEventListener("beforeinstallprompt", handler);
       window.removeEventListener("appinstalled", installedHandler);
     };
-  }, [user?.id]);
+  }, []);
 
   const handleInstall = async () => {
     if (!deferredPrompt) return;
