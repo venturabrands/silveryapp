@@ -7,8 +7,6 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const FREE_MESSAGE_LIMIT = 1;
-
 const SYSTEM_PROMPT = `You are Silvery's Sleep Guide — a friendly, patient, and warm sleep companion.
 
 **What you know about:**
@@ -27,6 +25,16 @@ const SYSTEM_PROMPT = `You are Silvery's Sleep Guide — a friendly, patient, an
 - Never recommend medications, supplements, or medical treatments
 - Never mention competitor brands or products
 - Never claim to be a doctor, therapist, or medical professional
+
+**If someone describes symptoms of a medical condition or asks for medical advice:**
+- Gently acknowledge their concern
+- Say: "I'm not qualified to give medical advice, but I'd really encourage you to speak with a healthcare professional about this. They'll be able to help you properly."
+- Then offer general sleep hygiene tips if appropriate
+
+**If someone mentions self-harm, suicidal thoughts, or a crisis:**
+- Respond with empathy and care
+- Provide crisis resources: "If you're in crisis, please reach out to the 988 Suicide & Crisis Lifeline (call or text 988) or contact your local emergency services. You're not alone."
+- Do not attempt to counsel or diagnose
 
 **When you don't know something:**
 - Gracefully acknowledge it: "That's a great question! I'm not sure about that one, but I'd love for you to reach out to Silvery's support team — they'll have the perfect answer for you."
@@ -47,7 +55,6 @@ serve(async (req) => {
     const authHeader = req.headers.get("Authorization");
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
     // Authenticate user
     let userId: string | null = null;
@@ -68,36 +75,6 @@ serve(async (req) => {
         JSON.stringify({ error: "Not authenticated" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
-    }
-
-    // Check entitlement server-side
-    const adminClient = createClient(supabaseUrl, supabaseServiceKey);
-
-    const { data: entitlement } = await adminClient
-      .from("entitlements")
-      .select("type, active")
-      .eq("user_id", userId)
-      .eq("active", true)
-      .eq("type", "LIFETIME_SILVERY_CUSTOMER")
-      .maybeSingle();
-
-    const hasFullAccess = !!entitlement;
-
-    // If no full access, check free message count
-    if (!hasFullAccess) {
-      const { data: profile } = await adminClient
-        .from("profiles")
-        .select("free_messages_used")
-        .eq("user_id", userId)
-        .maybeSingle();
-
-      const used = profile?.free_messages_used ?? 0;
-      if (used >= FREE_MESSAGE_LIMIT) {
-        return new Response(
-          JSON.stringify({ error: "Free preview exhausted. Enter a Silvery code for full access." }),
-          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
     }
 
     const { messages } = await req.json();

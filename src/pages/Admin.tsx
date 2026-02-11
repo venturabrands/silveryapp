@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
-import { Moon, ArrowLeft, Search, Shield, AlertTriangle, Loader2, Plus, Users } from "lucide-react";
+import { ArrowLeft, Search, Shield, AlertTriangle, Loader2, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Admin = () => {
@@ -16,8 +15,6 @@ const Admin = () => {
   const [searching, setSearching] = useState(false);
   const [moderationLogs, setModerationLogs] = useState<any[]>([]);
   const [logsLoading, setLogsLoading] = useState(false);
-  const [newCodes, setNewCodes] = useState("");
-  const [generating, setGenerating] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -37,49 +34,8 @@ const Admin = () => {
       .from("profiles")
       .select("*")
       .ilike("display_name", `%${searchEmail.trim()}%`);
-
-    // For each profile, fetch entitlements
-    const results = await Promise.all(
-      (data || []).map(async (profile: any) => {
-        const { data: ent } = await supabase
-          .from("entitlements")
-          .select("*")
-          .eq("user_id", profile.user_id)
-          .eq("active", true)
-          .maybeSingle();
-        return { ...profile, entitlement: ent };
-      })
-    );
-    setSearchResults(results);
+    setSearchResults(data || []);
     setSearching(false);
-  };
-
-  const grantEntitlement = async (userId: string, type: string, source: string) => {
-    const { error } = await supabase.from("entitlements").insert({
-      user_id: userId,
-      type,
-      active: true,
-      source,
-    });
-    if (error) {
-      toast.error("Failed to grant entitlement");
-    } else {
-      toast.success("Entitlement granted!");
-      searchUsers(); // Refresh
-    }
-  };
-
-  const revokeEntitlement = async (entitlementId: string) => {
-    const { error } = await supabase
-      .from("entitlements")
-      .update({ active: false })
-      .eq("id", entitlementId);
-    if (error) {
-      toast.error("Failed to revoke");
-    } else {
-      toast.success("Entitlement revoked");
-      searchUsers();
-    }
   };
 
   const loadModLogs = async () => {
@@ -91,31 +47,6 @@ const Admin = () => {
       .limit(50);
     setModerationLogs(data || []);
     setLogsLoading(false);
-  };
-
-  const generateCodes = async () => {
-    const count = parseInt(newCodes) || 0;
-    if (count < 1 || count > 100) {
-      toast.error("Enter a number between 1 and 100");
-      return;
-    }
-    setGenerating(true);
-    const codes = Array.from({ length: count }, () =>
-      "SILVERY-" + crypto.randomUUID().slice(0, 8).toUpperCase()
-    );
-    const { error } = await supabase
-      .from("claim_codes")
-      .insert(codes.map((code) => ({ code, is_redeemed: false })));
-    if (error) {
-      toast.error("Failed to generate codes");
-    } else {
-      toast.success(`Generated ${count} codes`);
-      // Show codes to admin
-      navigator.clipboard.writeText(codes.join("\n"));
-      toast.info("Codes copied to clipboard!");
-    }
-    setNewCodes("");
-    setGenerating(false);
   };
 
   if (isAdmin === null) {
@@ -161,20 +92,13 @@ const Admin = () => {
         <Tabs defaultValue="users">
           <TabsList className="w-full">
             <TabsTrigger value="users" className="flex-1 gap-2">
-              <Users className="w-4 h-4" />
-              Users
+              <Users className="w-4 h-4" /> Users
             </TabsTrigger>
             <TabsTrigger value="moderation" className="flex-1 gap-2" onClick={loadModLogs}>
-              <AlertTriangle className="w-4 h-4" />
-              Moderation
-            </TabsTrigger>
-            <TabsTrigger value="codes" className="flex-1 gap-2">
-              <Plus className="w-4 h-4" />
-              Codes
+              <AlertTriangle className="w-4 h-4" /> Moderation
             </TabsTrigger>
           </TabsList>
 
-          {/* Users Tab */}
           <TabsContent value="users" className="space-y-4 mt-4">
             <div className="flex gap-3">
               <Input
@@ -188,43 +112,14 @@ const Admin = () => {
                 <Search className="w-4 h-4" />
               </Button>
             </div>
-
             {searchResults.map((u) => (
               <div key={u.id} className="glass-card rounded-2xl p-4 space-y-2">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-sm font-medium text-foreground">{u.display_name || "No name"}</p>
-                    <p className="text-xs text-muted-foreground">ID: {u.user_id}</p>
-                  </div>
-                  {u.entitlement?.active ? (
-                    <div className="text-right">
-                      <p className="text-xs text-primary">{u.entitlement.type}</p>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        className="mt-1 text-xs h-7 rounded-lg"
-                        onClick={() => revokeEntitlement(u.entitlement.id)}
-                      >
-                        Revoke
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="flex gap-1">
-                      <Button
-                        size="sm"
-                        className="text-xs h-7 rounded-lg"
-                        onClick={() => grantEntitlement(u.user_id, "LIFETIME_SILVERY_CUSTOMER", "admin")}
-                      >
-                        Grant Lifetime
-                      </Button>
-                    </div>
-                  )}
-                </div>
+                <p className="text-sm font-medium text-foreground">{u.display_name || "No name"}</p>
+                <p className="text-xs text-muted-foreground">ID: {u.user_id}</p>
               </div>
             ))}
           </TabsContent>
 
-          {/* Moderation Tab */}
           <TabsContent value="moderation" className="space-y-4 mt-4">
             {logsLoading ? (
               <div className="text-center py-8 text-muted-foreground">Loading...</div>
@@ -251,30 +146,6 @@ const Admin = () => {
                 </div>
               ))
             )}
-          </TabsContent>
-
-          {/* Codes Tab */}
-          <TabsContent value="codes" className="space-y-4 mt-4">
-            <div className="glass-card rounded-2xl p-6 space-y-4">
-              <h3 className="font-serif text-lg font-semibold text-foreground">Generate Claim Codes</h3>
-              <p className="text-sm text-muted-foreground">
-                Codes will be in format SILVERY-XXXXXXXX and copied to your clipboard.
-              </p>
-              <div className="flex gap-3">
-                <Input
-                  type="number"
-                  min={1}
-                  max={100}
-                  value={newCodes}
-                  onChange={(e) => setNewCodes(e.target.value)}
-                  placeholder="Number of codes (1-100)"
-                  className="bg-muted border-border/50 rounded-xl"
-                />
-                <Button onClick={generateCodes} disabled={generating} className="rounded-xl">
-                  {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : "Generate"}
-                </Button>
-              </div>
-            </div>
           </TabsContent>
         </Tabs>
       </main>

@@ -1,76 +1,66 @@
 import { useState, useEffect } from "react";
-import { Moon, ArrowLeft, Gift, Shield, LogOut, Loader2 } from "lucide-react";
+import { Moon, ArrowLeft, Shield, LogOut, Loader2, Trash2, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { getUserEntitlement, hasAccess, type Entitlement } from "@/lib/entitlements";
 import { toast } from "sonner";
+
+interface Conversation {
+  id: string;
+  title: string | null;
+  updated_at: string;
+}
 
 const Account = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const [entitlement, setEntitlement] = useState<Entitlement | null>(null);
   const [loading, setLoading] = useState(true);
-  const [code, setCode] = useState("");
-  const [redeeming, setRedeeming] = useState(false);
   const [displayName, setDisplayName] = useState("");
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [loadingConvos, setLoadingConvos] = useState(false);
 
   useEffect(() => {
     if (!user) return;
     const load = async () => {
-      const [ent, profile] = await Promise.all([
-        getUserEntitlement(user.id),
-        supabase.from("profiles").select("display_name").eq("user_id", user.id).maybeSingle(),
-      ]);
-      setEntitlement(ent);
-      if (profile.data?.display_name) setDisplayName(profile.data.display_name);
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("display_name")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (profile?.display_name) setDisplayName(profile.display_name);
       setLoading(false);
     };
     load();
+    loadConversations();
   }, [user]);
 
-  const handleRedeem = async () => {
-    if (!code.trim()) return;
-    setRedeeming(true);
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const resp = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/redeem-code`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session?.access_token}`,
-          },
-          body: JSON.stringify({ code: code.trim() }),
-        }
-      );
-      const result = await resp.json();
-      if (!resp.ok) {
-        toast.error(result.error || "Failed to redeem code");
-      } else {
-        toast.success(result.message);
-        setCode("");
-        // Refresh entitlement
-        if (user) {
-          const ent = await getUserEntitlement(user.id);
-          setEntitlement(ent);
-        }
-      }
-    } catch {
-      toast.error("Something went wrong. Please try again.");
+  const loadConversations = async () => {
+    if (!user) return;
+    setLoadingConvos(true);
+    const { data } = await supabase
+      .from("conversations")
+      .select("id, title, updated_at")
+      .eq("user_id", user.id)
+      .order("updated_at", { ascending: false });
+    setConversations((data || []) as Conversation[]);
+    setLoadingConvos(false);
+  };
+
+  const deleteConversation = async (convId: string) => {
+    const { error } = await supabase.from("conversations").delete().eq("id", convId);
+    if (error) {
+      toast.error("Failed to delete conversation");
+    } else {
+      toast.success("Conversation deleted");
+      setConversations((prev) => prev.filter((c) => c.id !== convId));
     }
-    setRedeeming(false);
   };
 
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
   };
-
-  const entitled = hasAccess(entitlement);
 
   return (
     <div className="min-h-screen bg-background">
@@ -102,54 +92,53 @@ const Account = () => {
               <p className="text-sm text-muted-foreground">Email: {user?.email}</p>
             </div>
 
-            {/* Entitlement Status */}
+            {/* Access Status */}
             <div className="glass-card rounded-2xl p-6 space-y-3">
               <div className="flex items-center gap-2">
                 <Shield className="w-5 h-5 text-primary" />
                 <h3 className="font-serif text-lg font-semibold text-foreground">Access Status</h3>
               </div>
-              {entitled ? (
-                <div className="space-y-1">
-                  <p className="text-sm text-primary font-medium">
-                    ✓ Silvery Activated — Lifetime Access
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Source: {entitlement?.source} • Since {new Date(entitlement!.created_at).toLocaleDateString()}
-                  </p>
-                  {entitlement?.expires_at && (
-                    <p className="text-xs text-muted-foreground">
-                      Expires: {new Date(entitlement.expires_at).toLocaleDateString()}
-                    </p>
-                  )}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">Limited access. Enter your Silvery activation code below to unlock full features.</p>
-              )}
+              <p className="text-sm text-primary font-medium">✓ Lifetime Access</p>
             </div>
 
-            {/* Claim Code */}
-            {!entitled && (
-              <div className="glass-card rounded-2xl p-6 space-y-4">
-                <div className="flex items-center gap-2">
-                  <Gift className="w-5 h-5 text-primary" />
-                  <h3 className="font-serif text-lg font-semibold text-foreground">Silvery Customer?</h3>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  If you purchased a Silvery product, enter your claim code to unlock lifetime access.
-                </p>
-                <div className="flex gap-3">
-                  <Input
-                    value={code}
-                    onChange={(e) => setCode(e.target.value)}
-                    placeholder="Enter your code..."
-                    className="bg-muted border-border/50 rounded-xl"
-                  />
-                  <Button onClick={handleRedeem} disabled={redeeming || !code.trim()} className="rounded-xl">
-                    {redeeming ? <Loader2 className="w-4 h-4 animate-spin" /> : "Redeem"}
-                  </Button>
-                </div>
+            {/* Chat History Notice */}
+            <div className="glass-card rounded-2xl p-6 space-y-3">
+              <div className="flex items-center gap-2">
+                <MessageCircle className="w-5 h-5 text-primary" />
+                <h3 className="font-serif text-lg font-semibold text-foreground">Chat History</h3>
               </div>
-            )}
+              <p className="text-sm text-muted-foreground">
+                Your chat history is stored to help us improve the Sleep Guide. Please avoid sharing sensitive medical or personal information.
+              </p>
+              
+              {/* Conversation list */}
+              <div className="space-y-2 pt-2">
+                {loadingConvos ? (
+                  <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                ) : conversations.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No conversations yet.</p>
+                ) : (
+                  conversations.map((c) => (
+                    <div key={c.id} className="flex items-center justify-between bg-muted/50 rounded-xl px-4 py-3">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-foreground truncate">{c.title || "Untitled"}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(c.updated_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive flex-shrink-0"
+                        onClick={() => deleteConversation(c.id)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
 
             {/* Sign Out */}
             <Button variant="outline" onClick={handleSignOut} className="w-full rounded-xl">

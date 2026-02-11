@@ -8,9 +8,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { useEntitlement } from "@/hooks/useEntitlement";
-import Paywall from "@/components/Paywall";
-import { format, startOfWeek, addDays, subWeeks, addWeeks, subDays, subMonths, subYears, startOfMonth, startOfYear, endOfMonth, endOfYear } from "date-fns";
+import { format, startOfWeek, addDays, subWeeks, addWeeks, startOfMonth, startOfYear } from "date-fns";
 import { Progress } from "@/components/ui/progress";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -72,21 +70,16 @@ interface StatsData {
 
 function computeStats(entries: any[]): StatsData | null {
   if (!entries || entries.length === 0) return null;
-
   const withSleep = entries.filter((e) => e.hours_asleep && parseFloat(e.hours_asleep) > 0);
   const withEff = entries.filter((e) => e.sleep_efficiency && parseFloat(e.sleep_efficiency) > 0);
   const withWoke = entries.filter((e) => e.times_woke_up && parseFloat(e.times_woke_up) >= 0);
   const withBed = entries.filter((e) => e.hours_in_bed && parseFloat(e.hours_in_bed) > 0);
-
   const avg = (arr: any[], field: string) =>
-    arr.length > 0 ? arr.reduce((s, e) => s + parseFloat(e[field]), 0) / arr.length : 0;
-
+    arr.length > 0 ? arr.reduce((s: number, e: any) => s + parseFloat(e[field]), 0) / arr.length : 0;
   const habitRates = HABITS.map(({ key, label }) => ({
-    key,
-    label,
+    key, label,
     rate: entries.length > 0 ? (entries.filter((e) => e[key]).length / entries.length) * 100 : 0,
   }));
-
   return {
     avgHoursAsleep: Math.round(avg(withSleep, "hours_asleep") * 10) / 10,
     avgEfficiency: Math.round(avg(withEff, "sleep_efficiency") * 10) / 10,
@@ -117,18 +110,15 @@ const StatsView = ({ stats, periodLabel }: { stats: StatsData | null; periodLabe
       </div>
     );
   }
-
   return (
     <div className="space-y-6">
       <p className="text-sm text-muted-foreground text-center">{stats.totalEntries} entries logged for {periodLabel}</p>
-
       <div className="grid grid-cols-2 gap-3">
         <StatCard label="Avg. Hours Asleep" value={stats.avgHoursAsleep} unit="hrs" />
         <StatCard label="Avg. Efficiency" value={stats.avgEfficiency} unit="%" />
         <StatCard label="Avg. Wake-ups" value={stats.avgTimesWokeUp} unit="×" />
         <StatCard label="Avg. Hours in Bed" value={stats.avgHoursInBed} unit="hrs" />
       </div>
-
       <div className="glass-card rounded-2xl p-6 space-y-4">
         <h4 className="font-serif font-semibold text-foreground">Habit Completion</h4>
         {stats.habitRates.map(({ key, label, rate }) => (
@@ -147,7 +137,6 @@ const StatsView = ({ stats, periodLabel }: { stats: StatsData | null; periodLabe
 
 const SleepDiary = () => {
   const { user } = useAuth();
-  const { entitled, loading: entitlementLoading } = useEntitlement();
   const [weekStart, setWeekStart] = useState(() =>
     startOfWeek(new Date(), { weekStartsOn: 1 })
   );
@@ -155,8 +144,6 @@ const SleepDiary = () => {
   const [saving, setSaving] = useState(false);
   const [selectedDay, setSelectedDay] = useState(0);
   const [activeTab, setActiveTab] = useState("diary");
-
-  // Analytics state
   const [analyticsPeriod, setAnalyticsPeriod] = useState<"day" | "week" | "month" | "year">("week");
   const [analyticsData, setAnalyticsData] = useState<StatsData | null>(null);
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
@@ -166,41 +153,30 @@ const SleepDiary = () => {
     [weekStart]
   );
 
-  // Load entries for the week (diary tab)
   useEffect(() => {
     if (!user) return;
     const load = async () => {
       const startDate = format(weekStart, "yyyy-MM-dd");
       const endDate = format(addDays(weekStart, 6), "yyyy-MM-dd");
-
       const { data } = await supabase
         .from("sleep_entries")
         .select("*")
         .eq("user_id", user.id)
         .gte("entry_date", startDate)
         .lte("entry_date", endDate);
-
       const week = DAYS.map((day, i) => {
         const date = weekDates[i];
         const dateStr = format(date, "yyyy-MM-dd");
         const existing = data?.find((e: any) => e.entry_date === dateStr);
         if (existing) {
           return {
-            id: existing.id,
-            entry_date: existing.entry_date,
-            day_of_week: existing.day_of_week,
-            target_wake_time: existing.target_wake_time || "",
-            target_bedtime: existing.target_bedtime || "",
-            hours_in_bed: existing.hours_in_bed || "",
-            times_woke_up: existing.times_woke_up || "",
-            hours_asleep: existing.hours_asleep || "",
-            sleep_efficiency: existing.sleep_efficiency || "",
-            outside_20_min: existing.outside_20_min,
-            morning_sunlight: existing.morning_sunlight,
-            no_eating_2hr: existing.no_eating_2hr,
-            no_caffeine_after_2pm: existing.no_caffeine_after_2pm,
-            phone_out_bedroom: existing.phone_out_bedroom,
-            no_screens_1hr: existing.no_screens_1hr,
+            id: existing.id, entry_date: existing.entry_date, day_of_week: existing.day_of_week,
+            target_wake_time: existing.target_wake_time || "", target_bedtime: existing.target_bedtime || "",
+            hours_in_bed: existing.hours_in_bed || "", times_woke_up: existing.times_woke_up || "",
+            hours_asleep: existing.hours_asleep || "", sleep_efficiency: existing.sleep_efficiency || "",
+            outside_20_min: existing.outside_20_min, morning_sunlight: existing.morning_sunlight,
+            no_eating_2hr: existing.no_eating_2hr, no_caffeine_after_2pm: existing.no_caffeine_after_2pm,
+            phone_out_bedroom: existing.phone_out_bedroom, no_screens_1hr: existing.no_screens_1hr,
           } as DayEntry;
         }
         return emptyEntry(date, day);
@@ -210,65 +186,31 @@ const SleepDiary = () => {
     load();
   }, [user, weekStart, weekDates]);
 
-  // Load analytics data
   const loadAnalytics = useCallback(async () => {
     if (!user) return;
     setAnalyticsLoading(true);
-
     const now = new Date();
     let startDate: string;
-    let endDate = format(now, "yyyy-MM-dd");
-
+    const endDate = format(now, "yyyy-MM-dd");
     switch (analyticsPeriod) {
-      case "day":
-        startDate = endDate;
-        break;
-      case "week":
-        startDate = format(startOfWeek(now, { weekStartsOn: 1 }), "yyyy-MM-dd");
-        break;
-      case "month":
-        startDate = format(startOfMonth(now), "yyyy-MM-dd");
-        break;
-      case "year":
-        startDate = format(startOfYear(now), "yyyy-MM-dd");
-        break;
+      case "day": startDate = endDate; break;
+      case "week": startDate = format(startOfWeek(now, { weekStartsOn: 1 }), "yyyy-MM-dd"); break;
+      case "month": startDate = format(startOfMonth(now), "yyyy-MM-dd"); break;
+      case "year": startDate = format(startOfYear(now), "yyyy-MM-dd"); break;
     }
-
     const { data } = await supabase
-      .from("sleep_entries")
-      .select("*")
-      .eq("user_id", user.id)
-      .gte("entry_date", startDate)
-      .lte("entry_date", endDate);
-
+      .from("sleep_entries").select("*").eq("user_id", user.id)
+      .gte("entry_date", startDate).lte("entry_date", endDate);
     setAnalyticsData(computeStats(data || []));
     setAnalyticsLoading(false);
   }, [user, analyticsPeriod]);
 
   useEffect(() => {
-    if (activeTab === "analytics") {
-      loadAnalytics();
-    }
+    if (activeTab === "analytics") loadAnalytics();
   }, [activeTab, analyticsPeriod, loadAnalytics]);
 
-  // Show loading while checking entitlement
-  if (entitlementLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
-  // Show paywall if not entitled
-  if (!entitled) {
-    return <Paywall />;
-  }
-
   const updateField = (dayIndex: number, field: keyof DayEntry, value: string | boolean) => {
-    setEntries((prev) =>
-      prev.map((e, i) => (i === dayIndex ? { ...e, [field]: value } : e))
-    );
+    setEntries((prev) => prev.map((e, i) => (i === dayIndex ? { ...e, [field]: value } : e)));
   };
 
   const saveAll = async () => {
@@ -277,23 +219,14 @@ const SleepDiary = () => {
     try {
       for (const entry of entries) {
         const payload = {
-          user_id: user.id,
-          entry_date: entry.entry_date,
-          day_of_week: entry.day_of_week,
-          target_wake_time: entry.target_wake_time || null,
-          target_bedtime: entry.target_bedtime || null,
-          hours_in_bed: entry.hours_in_bed || null,
-          times_woke_up: entry.times_woke_up || null,
-          hours_asleep: entry.hours_asleep || null,
-          sleep_efficiency: entry.sleep_efficiency || null,
-          outside_20_min: entry.outside_20_min,
-          morning_sunlight: entry.morning_sunlight,
-          no_eating_2hr: entry.no_eating_2hr,
-          no_caffeine_after_2pm: entry.no_caffeine_after_2pm,
-          phone_out_bedroom: entry.phone_out_bedroom,
-          no_screens_1hr: entry.no_screens_1hr,
+          user_id: user.id, entry_date: entry.entry_date, day_of_week: entry.day_of_week,
+          target_wake_time: entry.target_wake_time || null, target_bedtime: entry.target_bedtime || null,
+          hours_in_bed: entry.hours_in_bed || null, times_woke_up: entry.times_woke_up || null,
+          hours_asleep: entry.hours_asleep || null, sleep_efficiency: entry.sleep_efficiency || null,
+          outside_20_min: entry.outside_20_min, morning_sunlight: entry.morning_sunlight,
+          no_eating_2hr: entry.no_eating_2hr, no_caffeine_after_2pm: entry.no_caffeine_after_2pm,
+          phone_out_bedroom: entry.phone_out_bedroom, no_screens_1hr: entry.no_screens_1hr,
         };
-
         if (entry.id) {
           await supabase.from("sleep_entries").update(payload).eq("id", entry.id);
         } else {
@@ -311,17 +244,13 @@ const SleepDiary = () => {
 
   const currentEntry = entries[selectedDay];
   const weekLabel = `${format(weekStart, "MMM d")} – ${format(addDays(weekStart, 6), "MMM d, yyyy")}`;
-
   const periodLabels: Record<string, string> = {
-    day: "today",
-    week: "this week",
-    month: format(new Date(), "MMMM yyyy"),
-    year: format(new Date(), "yyyy"),
+    day: "today", week: "this week",
+    month: format(new Date(), "MMMM yyyy"), year: format(new Date(), "yyyy"),
   };
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
         <div className="section-container flex items-center justify-between h-16">
           <div className="flex items-center gap-4">
@@ -345,22 +274,17 @@ const SleepDiary = () => {
       </header>
 
       <main className="section-container py-6 space-y-6">
-        {/* Main Tabs: Diary / Analytics */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="w-full">
             <TabsTrigger value="diary" className="flex-1 gap-2">
-              <Calendar className="w-4 h-4" />
-              Diary
+              <Calendar className="w-4 h-4" /> Diary
             </TabsTrigger>
             <TabsTrigger value="analytics" className="flex-1 gap-2">
-              <TrendingUp className="w-4 h-4" />
-              Statistics
+              <TrendingUp className="w-4 h-4" /> Statistics
             </TabsTrigger>
           </TabsList>
 
-          {/* ===== DIARY TAB ===== */}
           <TabsContent value="diary" className="space-y-6 mt-4">
-            {/* Week Navigation */}
             <div className="flex items-center justify-between">
               <Button variant="ghost" size="icon" onClick={() => setWeekStart(subWeeks(weekStart, 1))}>
                 <ChevronLeft className="w-5 h-5" />
@@ -371,7 +295,6 @@ const SleepDiary = () => {
               </Button>
             </div>
 
-            {/* Day Tabs */}
             <div className="flex gap-1 overflow-x-auto pb-2">
               {DAYS.map((day, i) => (
                 <button
@@ -391,10 +314,8 @@ const SleepDiary = () => {
 
             {currentEntry && (
               <div className="space-y-6">
-                {/* Sleep Questions */}
                 <div className="glass-card rounded-2xl p-6 space-y-4">
                   <h3 className="font-serif text-lg font-semibold text-foreground">Sleep Log</h3>
-
                   {[
                     { key: "target_wake_time", label: "Target wake-up time?" },
                     { key: "target_bedtime", label: "What's your target bedtime?" },
@@ -415,7 +336,6 @@ const SleepDiary = () => {
                   ))}
                 </div>
 
-                {/* Habit Checklist */}
                 <div className="glass-card rounded-2xl p-6 space-y-4">
                   <h3 className="font-serif text-lg font-semibold text-foreground">Daily Habits</h3>
                   <div className="space-y-3">
@@ -438,27 +358,26 @@ const SleepDiary = () => {
             )}
           </TabsContent>
 
-          {/* ===== ANALYTICS TAB ===== */}
           <TabsContent value="analytics" className="space-y-6 mt-4">
-            {/* Period selector */}
             <div className="flex gap-2 justify-center">
               {(["day", "week", "month", "year"] as const).map((p) => (
                 <button
                   key={p}
                   onClick={() => setAnalyticsPeriod(p)}
-                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors capitalize ${
+                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
                     analyticsPeriod === p
                       ? "bg-primary text-primary-foreground"
                       : "bg-muted text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  {p}
+                  {p.charAt(0).toUpperCase() + p.slice(1)}
                 </button>
               ))}
             </div>
-
             {analyticsLoading ? (
-              <div className="text-center py-12 text-muted-foreground">Loading statistics...</div>
+              <div className="flex justify-center py-12">
+                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+              </div>
             ) : (
               <StatsView stats={analyticsData} periodLabel={periodLabels[analyticsPeriod]} />
             )}
