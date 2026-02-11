@@ -1,38 +1,9 @@
-import { Moon, MessageCircle, LogOut, CalendarClock, User } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/useAuth";
-import { Link, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { Moon, MessageCircle, CalendarClock } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Dashboard = () => {
-  const { user, signOut } = useAuth();
-  const navigate = useNavigate();
-  const [displayName, setDisplayName] = useState("");
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      if (!user) return;
-      const { data } = await supabase
-        .from("profiles")
-        .select("display_name")
-        .eq("user_id", user.id)
-        .maybeSingle();
-      if (data?.display_name) setDisplayName(data.display_name);
-    };
-    fetchProfile();
-  }, [user]);
-
-  const handleSignOut = async () => {
-    await signOut();
-    navigate("/");
-  };
-
-  const greeting = displayName || user?.email?.split("@")[0] || "there";
-
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
         <div className="section-container flex items-center justify-between h-16">
           <div className="flex items-center gap-2">
@@ -41,41 +12,17 @@ const Dashboard = () => {
             </div>
             <span className="font-serif text-lg font-semibold text-foreground">Silvery</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Link to="/account">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <User className="w-4 h-4 mr-2" />
-                Account
-              </Button>
-            </Link>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleSignOut}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Sign Out
-            </Button>
-          </div>
         </div>
       </header>
 
-      {/* Content */}
       <main className="section-container py-10 space-y-10">
-        {/* Greeting */}
         <div>
           <h1 className="font-serif text-3xl md:text-4xl font-bold text-foreground">
-            Good evening, {greeting} 🌙
+            Good evening 🌙
           </h1>
           <p className="text-muted-foreground mt-2">Ready for a restful night?</p>
         </div>
 
-        {/* Feature Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Link to="/sleep-chat" className="block">
             <div className="glass-card rounded-2xl p-6 hover:border-primary/30 transition-colors cursor-pointer group">

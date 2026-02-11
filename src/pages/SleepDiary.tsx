@@ -6,7 +6,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { format, startOfWeek, addDays, subWeeks, addWeeks, startOfMonth, startOfYear } from "date-fns";
 import { Progress } from "@/components/ui/progress";
@@ -136,7 +135,7 @@ const StatsView = ({ stats, periodLabel }: { stats: StatsData | null; periodLabe
 };
 
 const SleepDiary = () => {
-  const { user } = useAuth();
+  const [userId, setUserId] = useState<string | null>(null);
   const [weekStart, setWeekStart] = useState(() =>
     startOfWeek(new Date(), { weekStartsOn: 1 })
   );
@@ -148,20 +147,26 @@ const SleepDiary = () => {
   const [analyticsData, setAnalyticsData] = useState<StatsData | null>(null);
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
 
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUserId(session?.user?.id ?? null);
+    });
+  }, []);
+
   const weekDates = useMemo(
     () => DAYS.map((_, i) => addDays(weekStart, i)),
     [weekStart]
   );
 
   useEffect(() => {
-    if (!user) return;
+    if (!userId) return;
     const load = async () => {
       const startDate = format(weekStart, "yyyy-MM-dd");
       const endDate = format(addDays(weekStart, 6), "yyyy-MM-dd");
       const { data } = await supabase
         .from("sleep_entries")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", userId)
         .gte("entry_date", startDate)
         .lte("entry_date", endDate);
       const week = DAYS.map((day, i) => {
@@ -184,10 +189,10 @@ const SleepDiary = () => {
       setEntries(week);
     };
     load();
-  }, [user, weekStart, weekDates]);
+  }, [userId, weekStart, weekDates]);
 
   const loadAnalytics = useCallback(async () => {
-    if (!user) return;
+    if (!userId) return;
     setAnalyticsLoading(true);
     const now = new Date();
     let startDate: string;
@@ -199,11 +204,11 @@ const SleepDiary = () => {
       case "year": startDate = format(startOfYear(now), "yyyy-MM-dd"); break;
     }
     const { data } = await supabase
-      .from("sleep_entries").select("*").eq("user_id", user.id)
+      .from("sleep_entries").select("*").eq("user_id", userId)
       .gte("entry_date", startDate).lte("entry_date", endDate);
     setAnalyticsData(computeStats(data || []));
     setAnalyticsLoading(false);
-  }, [user, analyticsPeriod]);
+  }, [userId, analyticsPeriod]);
 
   useEffect(() => {
     if (activeTab === "analytics") loadAnalytics();
@@ -214,12 +219,15 @@ const SleepDiary = () => {
   };
 
   const saveAll = async () => {
-    if (!user) return;
+    if (!userId) {
+      toast.error("No active session. Data cannot be saved.");
+      return;
+    }
     setSaving(true);
     try {
       for (const entry of entries) {
         const payload = {
-          user_id: user.id, entry_date: entry.entry_date, day_of_week: entry.day_of_week,
+          user_id: userId, entry_date: entry.entry_date, day_of_week: entry.day_of_week,
           target_wake_time: entry.target_wake_time || null, target_bedtime: entry.target_bedtime || null,
           hours_in_bed: entry.hours_in_bed || null, times_woke_up: entry.times_woke_up || null,
           hours_asleep: entry.hours_asleep || null, sleep_efficiency: entry.sleep_efficiency || null,

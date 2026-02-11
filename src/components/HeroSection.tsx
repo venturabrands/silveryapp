@@ -37,11 +37,11 @@ const HeroSection = () => {
           Free AI Sleep Expert, Sleep Diary, and personalised insights — all included.
         </p>
         <p className="text-sm text-muted-foreground mb-12 animate-fade-up-delay-2">
-          Sign up and start improving your sleep tonight.
+          Start improving your sleep tonight.
         </p>
 
         <div className="flex justify-center animate-fade-up-delay-3">
-          <Button variant="hero" size="lg" onClick={() => navigate("/auth")}>
+          <Button variant="hero" size="lg" onClick={() => navigate("/dashboard")}>
             Start Sleeping Better
           </Button>
         </div>
