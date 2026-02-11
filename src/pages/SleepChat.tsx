@@ -1,13 +1,11 @@
 import { useState, useRef, useEffect } from "react";
-import { Moon, Send, ArrowLeft, Plus, Loader2 } from "lucide-react";
+import { Moon, Send, ArrowLeft, Plus, Loader2, Trash2, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useEntitlement } from "@/hooks/useEntitlement";
-import Paywall from "@/components/Paywall";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -40,11 +38,6 @@ async function streamChat({
   }
   if (resp.status === 402) {
     toast.error("Service temporarily unavailable. Please try again later.");
-    onDone();
-    return;
-  }
-  if (resp.status === 403) {
-    toast.error("You've used your free preview. Enter a Silvery code for full access.");
     onDone();
     return;
   }
@@ -86,7 +79,6 @@ async function streamChat({
     }
   }
 
-  // Final flush
   if (textBuffer.trim()) {
     for (let raw of textBuffer.split("\n")) {
       if (!raw) continue;
@@ -106,42 +98,27 @@ async function streamChat({
   onDone();
 }
 
+interface Conversation {
+  id: string;
+  title: string | null;
+  updated_at: string;
+}
+
 const SleepChat = () => {
   const { user } = useAuth();
-  const { entitled, loading: entitlementLoading } = useEntitlement();
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [loadingHistory, setLoadingHistory] = useState(true);
-  const [freeUsed, setFreeUsed] = useState<number>(0);
-  const [previewExhausted, setPreviewExhausted] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(false);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  const FREE_MESSAGE_LIMIT = 1;
-
-  // Load free message count and conversation history
+  // Load most recent conversation on mount
   useEffect(() => {
     if (!user) return;
-
     const load = async () => {
-      // Load free_messages_used from profile
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("free_messages_used")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      const used = profile?.free_messages_used ?? 0;
-      setFreeUsed(used);
-
-      if (!entitled && used >= FREE_MESSAGE_LIMIT) {
-        setPreviewExhausted(true);
-        setLoadingHistory(false);
-        return;
-      }
-
-      // Load most recent conversation
       const { data: conv } = await supabase
         .from("conversations")
         .select("id")
@@ -164,25 +141,23 @@ const SleepChat = () => {
       setLoadingHistory(false);
     };
     load();
-  }, [user, entitled]);
+  }, [user]);
+
+  // Load conversation list for sidebar
+  const loadConversations = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("conversations")
+      .select("id, title, updated_at")
+      .eq("user_id", user.id)
+      .order("updated_at", { ascending: false })
+      .limit(20);
+    setConversations((data || []) as Conversation[]);
+  };
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
-  // Show loading while checking entitlement
-  if (entitlementLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
-  // Show paywall if preview exhausted and not entitled
-  if (!entitled && previewExhausted) {
-    return <Paywall />;
-  }
 
   const createConversation = async (): Promise<string | null> => {
     if (!user) return null;
@@ -209,6 +184,29 @@ const SleepChat = () => {
   const startNewConversation = () => {
     setMessages([]);
     setConversationId(null);
+    setShowSidebar(false);
+  };
+
+  const switchConversation = async (convId: string) => {
+    setLoadingHistory(true);
+    setConversationId(convId);
+    const { data: msgs } = await supabase
+      .from("messages")
+      .select("role, content")
+      .eq("conversation_id", convId)
+      .order("created_at", { ascending: true });
+    setMessages(msgs ? (msgs.filter((m: any) => m.role !== "system") as Msg[]) : []);
+    setLoadingHistory(false);
+    setShowSidebar(false);
+  };
+
+  const deleteConversation = async (convId: string) => {
+    await supabase.from("conversations").delete().eq("id", convId);
+    if (convId === conversationId) {
+      startNewConversation();
+    }
+    loadConversations();
+    toast.success("Conversation deleted");
   };
 
   const send = async () => {
@@ -218,18 +216,11 @@ const SleepChat = () => {
       return;
     }
 
-    // Check free message limit for non-entitled users
-    if (!entitled && freeUsed >= FREE_MESSAGE_LIMIT) {
-      setPreviewExhausted(true);
-      return;
-    }
-
     const userMsg: Msg = { role: "user", content: text };
     setInput("");
     setMessages((prev) => [...prev, userMsg]);
     setIsLoading(true);
 
-    // Ensure conversation exists
     let convId = conversationId;
     if (!convId) {
       convId = await createConversation();
@@ -241,24 +232,7 @@ const SleepChat = () => {
       setConversationId(convId);
     }
 
-    // Save user message
     await saveMessage(convId, "user", text);
-
-    // Increment free_messages_used for non-entitled users
-    if (!entitled) {
-      const newCount = freeUsed + 1;
-      setFreeUsed(newCount);
-      await supabase
-        .from("profiles")
-        .update({ free_messages_used: newCount })
-        .eq("user_id", user!.id);
-
-      if (newCount >= FREE_MESSAGE_LIMIT) {
-        // Will show paywall after this message completes
-      }
-    }
-
-    // Update conversation timestamp
     await supabase.from("conversations").update({ updated_at: new Date().toISOString() }).eq("id", convId);
 
     const { data: { session } } = await supabase.auth.getSession();
@@ -279,7 +253,6 @@ const SleepChat = () => {
     };
 
     try {
-      // Send last 10 messages for context
       const contextMessages = [...messages, userMsg].slice(-10);
       await streamChat({
         messages: contextMessages,
@@ -287,13 +260,8 @@ const SleepChat = () => {
         onDelta: upsert,
         onDone: async () => {
           setIsLoading(false);
-          // Save assistant message
           if (assistantSoFar && convId) {
             await saveMessage(convId, "assistant", assistantSoFar);
-          }
-          // After response, if free limit reached, show paywall
-          if (!entitled && freeUsed + 1 >= FREE_MESSAGE_LIMIT) {
-            setPreviewExhausted(true);
           }
         },
       });
@@ -304,14 +272,12 @@ const SleepChat = () => {
     }
   };
 
-  const showPreviewBanner = !entitled && freeUsed < FREE_MESSAGE_LIMIT;
-
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="h-[100dvh] bg-background flex flex-col">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
-        <div className="section-container flex items-center justify-between h-16">
-          <div className="flex items-center gap-4">
+        <div className="section-container flex items-center justify-between h-14">
+          <div className="flex items-center gap-3">
             <Link to="/dashboard" className="text-muted-foreground hover:text-foreground transition-colors">
               <ArrowLeft className="w-5 h-5" />
             </Link>
@@ -325,7 +291,16 @@ const SleepChat = () => {
               </div>
             </div>
           </div>
-          {entitled && (
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => { setShowSidebar(!showSidebar); loadConversations(); }}
+              title="Conversations"
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <MessageCircle className="w-5 h-5" />
+            </Button>
             <Button
               variant="ghost"
               size="icon"
@@ -335,27 +310,59 @@ const SleepChat = () => {
             >
               <Plus className="w-5 h-5" />
             </Button>
-          )}
+          </div>
         </div>
       </header>
 
-      {/* Free preview banner */}
-      {showPreviewBanner && (
-        <div className="bg-primary/10 border-b border-primary/20 px-4 py-2 text-center">
-          <p className="text-sm text-foreground">
-            🌙 Free preview — you have <strong>{FREE_MESSAGE_LIMIT - freeUsed}</strong> message{FREE_MESSAGE_LIMIT - freeUsed !== 1 ? "s" : ""} remaining.{" "}
-            <Link to="/account" className="text-primary underline">Enter your Silvery code</Link> for full access.
-          </p>
+      {/* Conversation sidebar */}
+      {showSidebar && (
+        <div className="absolute inset-0 z-40 flex">
+          <div className="w-72 bg-background border-r border-border/50 flex flex-col h-full pt-14">
+            <div className="p-4 border-b border-border/50">
+              <Button onClick={startNewConversation} className="w-full rounded-xl" size="sm">
+                <Plus className="w-4 h-4 mr-2" /> New Chat
+              </Button>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              {conversations.map((c) => (
+                <div
+                  key={c.id}
+                  className={`flex items-center justify-between px-4 py-3 hover:bg-muted/50 cursor-pointer ${c.id === conversationId ? "bg-muted" : ""}`}
+                >
+                  <button
+                    onClick={() => switchConversation(c.id)}
+                    className="flex-1 text-left text-sm text-foreground truncate"
+                  >
+                    {c.title || "Untitled"}
+                  </button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-muted-foreground hover:text-destructive flex-shrink-0"
+                    onClick={(e) => { e.stopPropagation(); deleteConversation(c.id); }}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+              ))}
+              {conversations.length === 0 && (
+                <p className="text-sm text-muted-foreground text-center py-8">No conversations yet</p>
+              )}
+            </div>
+          </div>
+          <div className="flex-1 bg-background/50" onClick={() => setShowSidebar(false)} />
         </div>
       )}
 
       {/* Messages */}
-      <main className="flex-1 overflow-y-auto py-6">
+      <main className="flex-1 overflow-y-auto py-4">
         <div className="section-container space-y-4">
           {loadingHistory ? (
-            <div className="text-center py-12 text-muted-foreground">Loading conversation...</div>
+            <div className="text-center py-12 text-muted-foreground">
+              <Loader2 className="w-6 h-6 animate-spin mx-auto" />
+            </div>
           ) : messages.length === 0 ? (
-            <div className="text-center py-20 space-y-4">
+            <div className="text-center py-16 space-y-4">
               <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
                 <Moon className="w-8 h-8 text-primary" />
               </div>
@@ -385,7 +392,7 @@ const SleepChat = () => {
               className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
             >
               <div
-                className={`max-w-[80%] rounded-2xl px-5 py-3 ${
+                className={`max-w-[85%] rounded-2xl px-4 py-3 ${
                   msg.role === "user"
                     ? "bg-primary text-primary-foreground"
                     : "glass-card"
@@ -419,14 +426,14 @@ const SleepChat = () => {
       </main>
 
       {/* Input */}
-      <div className="sticky bottom-0 bg-background/80 backdrop-blur-md border-t border-border/50 py-4">
+      <div className="bg-background/80 backdrop-blur-md border-t border-border/50 py-3 pb-[env(safe-area-inset-bottom,12px)]">
         <div className="section-container">
           <form
             onSubmit={(e) => {
               e.preventDefault();
               send();
             }}
-            className="flex gap-3"
+            className="flex gap-2"
           >
             <input
               value={input}

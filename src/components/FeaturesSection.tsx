@@ -41,7 +41,7 @@ const FeaturesSection = () => {
           App Features
         </h2>
         <p className="text-muted-foreground text-center mb-10 max-w-lg mx-auto">
-          Free to download. Unlock full access with your Silvery activation code.
+          Everything you need to sleep better — completely free with your account.
         </p>
 
         {/* Primary feature cards — match Dashboard layout */}

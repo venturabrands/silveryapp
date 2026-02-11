@@ -34,10 +34,10 @@ const HeroSection = () => {
         </h1>
 
         <p className="max-w-xl mx-auto text-lg md:text-xl text-muted-foreground leading-relaxed mb-6 animate-fade-up-delay-2">
-          Free to download. Silvery customers unlock full access with their activation code.
+          Free AI Sleep Expert, Sleep Diary, and personalised insights — all included.
         </p>
         <p className="text-sm text-muted-foreground mb-12 animate-fade-up-delay-2">
-          Includes AI Sleep Expert · Sleep Diary · Personalised insights
+          Sign up and start improving your sleep tonight.
         </p>
 
         <div className="flex justify-center animate-fade-up-delay-3">
