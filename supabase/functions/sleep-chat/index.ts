@@ -46,6 +46,10 @@ const SYSTEM_PROMPT = `You are Silvery's Sleep Guide — a friendly, patient, an
 - Use gentle encouragement: "You're on the right track!", "That's a wonderful habit to build"
 - End with an invitation to ask more: "Is there anything else about your sleep I can help with?"`;
 
+/** Security limits for input validation */
+const MAX_MESSAGES_PER_REQUEST = 50;
+const MAX_MESSAGE_LENGTH = 2000;
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -87,7 +91,7 @@ serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-    if (messages.length === 0 || messages.length > 50) {
+    if (messages.length === 0 || messages.length > MAX_MESSAGES_PER_REQUEST) {
       return new Response(
         JSON.stringify({ error: "Invalid number of messages" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -106,9 +110,9 @@ serve(async (req) => {
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      if (msg.content.length > 2000) {
+      if (msg.content.length > MAX_MESSAGE_LENGTH) {
         return new Response(
-          JSON.stringify({ error: "Message too long (max 2000 characters)" }),
+          JSON.stringify({ error: `Message too long (max ${MAX_MESSAGE_LENGTH} characters)` }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }

@@ -19,12 +19,8 @@ const Admin = () => {
   useEffect(() => {
     if (!user) return;
     supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .eq("role", "admin")
-      .maybeSingle()
-      .then(({ data }) => setIsAdmin(!!data));
+      .rpc("has_role", { _user_id: user.id, _role: "admin" })
+      .then(({ data, error }) => setIsAdmin(!error && data === true));
   }, [user]);
 
   const searchUsers = async () => {
