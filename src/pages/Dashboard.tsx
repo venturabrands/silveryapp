@@ -1,4 +1,4 @@
-import { Moon, MessageCircle, LogOut, BarChart3, Activity, CalendarClock } from "lucide-react";
+import { Moon, MessageCircle, LogOut, CalendarClock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { Link, useNavigate } from "react-router-dom";
@@ -84,32 +84,10 @@ const Dashboard = () => {
               </div>
               <h3 className="font-serif text-xl font-semibold text-foreground mb-2">Sleep Diary</h3>
               <p className="text-muted-foreground text-sm">
-                Track your weekly sleep schedule, habits, and efficiency in your personal diary.
+                Track your sleep schedule, habits, and view your statistics over time.
               </p>
             </div>
           </Link>
-
-          <div className="glass-card rounded-2xl p-6 opacity-60 cursor-default">
-            <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center mb-4">
-              <Activity className="w-6 h-6 text-accent" />
-            </div>
-            <h3 className="font-serif text-xl font-semibold text-foreground mb-2">Sleep Analytics</h3>
-            <p className="text-muted-foreground text-sm">
-              Deep-dive into trends and insights based on your diary data.
-            </p>
-            <span className="text-xs text-primary font-medium mt-3 inline-block">Coming Soon</span>
-          </div>
-
-          <div className="glass-card rounded-2xl p-6 opacity-60 cursor-default">
-            <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center mb-4">
-              <BarChart3 className="w-6 h-6 text-accent" />
-            </div>
-            <h3 className="font-serif text-xl font-semibold text-foreground mb-2">Analytics</h3>
-            <p className="text-muted-foreground text-sm">
-              Deep-dive into weekly and monthly trends with clear, visual insights.
-            </p>
-            <span className="text-xs text-primary font-medium mt-3 inline-block">Coming Soon</span>
-          </div>
         </div>
       </main>
     </div>

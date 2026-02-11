@@ -1,13 +1,15 @@
-import { useState, useEffect, useMemo } from "react";
-import { Moon, ArrowLeft, ChevronLeft, ChevronRight, Save } from "lucide-react";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { Moon, ArrowLeft, ChevronLeft, ChevronRight, Save, TrendingUp, Calendar, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { format, startOfWeek, addDays, subWeeks, addWeeks } from "date-fns";
+import { format, startOfWeek, addDays, subWeeks, addWeeks, subDays, subMonths, subYears, startOfMonth, startOfYear, endOfMonth, endOfYear } from "date-fns";
+import { Progress } from "@/components/ui/progress";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
@@ -57,6 +59,90 @@ const emptyEntry = (date: Date, dayName: string): DayEntry => ({
   no_screens_1hr: false,
 });
 
+interface StatsData {
+  avgHoursAsleep: number;
+  avgEfficiency: number;
+  avgTimesWokeUp: number;
+  avgHoursInBed: number;
+  totalEntries: number;
+  habitRates: { key: string; label: string; rate: number }[];
+}
+
+function computeStats(entries: any[]): StatsData | null {
+  if (!entries || entries.length === 0) return null;
+
+  const withSleep = entries.filter((e) => e.hours_asleep && parseFloat(e.hours_asleep) > 0);
+  const withEff = entries.filter((e) => e.sleep_efficiency && parseFloat(e.sleep_efficiency) > 0);
+  const withWoke = entries.filter((e) => e.times_woke_up && parseFloat(e.times_woke_up) >= 0);
+  const withBed = entries.filter((e) => e.hours_in_bed && parseFloat(e.hours_in_bed) > 0);
+
+  const avg = (arr: any[], field: string) =>
+    arr.length > 0 ? arr.reduce((s, e) => s + parseFloat(e[field]), 0) / arr.length : 0;
+
+  const habitRates = HABITS.map(({ key, label }) => ({
+    key,
+    label,
+    rate: entries.length > 0 ? (entries.filter((e) => e[key]).length / entries.length) * 100 : 0,
+  }));
+
+  return {
+    avgHoursAsleep: Math.round(avg(withSleep, "hours_asleep") * 10) / 10,
+    avgEfficiency: Math.round(avg(withEff, "sleep_efficiency") * 10) / 10,
+    avgTimesWokeUp: Math.round(avg(withWoke, "times_woke_up") * 10) / 10,
+    avgHoursInBed: Math.round(avg(withBed, "hours_in_bed") * 10) / 10,
+    totalEntries: entries.length,
+    habitRates,
+  };
+}
+
+const StatCard = ({ label, value, unit }: { label: string; value: number; unit: string }) => (
+  <div className="glass-card rounded-2xl p-4 text-center">
+    <p className="text-xs text-muted-foreground mb-1">{label}</p>
+    <p className="text-2xl font-serif font-bold text-foreground">
+      {value > 0 ? value : "–"}
+      {value > 0 && <span className="text-sm font-normal text-muted-foreground ml-1">{unit}</span>}
+    </p>
+  </div>
+);
+
+const StatsView = ({ stats, periodLabel }: { stats: StatsData | null; periodLabel: string }) => {
+  if (!stats || stats.totalEntries === 0) {
+    return (
+      <div className="glass-card rounded-2xl p-8 text-center">
+        <BarChart3 className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+        <p className="text-muted-foreground">No sleep data for {periodLabel}.</p>
+        <p className="text-sm text-muted-foreground mt-1">Start logging in the Diary tab!</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <p className="text-sm text-muted-foreground text-center">{stats.totalEntries} entries logged for {periodLabel}</p>
+
+      <div className="grid grid-cols-2 gap-3">
+        <StatCard label="Avg. Hours Asleep" value={stats.avgHoursAsleep} unit="hrs" />
+        <StatCard label="Avg. Efficiency" value={stats.avgEfficiency} unit="%" />
+        <StatCard label="Avg. Wake-ups" value={stats.avgTimesWokeUp} unit="×" />
+        <StatCard label="Avg. Hours in Bed" value={stats.avgHoursInBed} unit="hrs" />
+      </div>
+
+      <div className="glass-card rounded-2xl p-6 space-y-4">
+        <h4 className="font-serif font-semibold text-foreground">Habit Completion</h4>
+        {stats.habitRates.map(({ key, label, rate }) => (
+          <div key={key} className="space-y-1.5">
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">{label}</span>
+              <span className="text-foreground font-medium">{Math.round(rate)}%</span>
+            </div>
+            <Progress value={rate} className="h-2" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const SleepDiary = () => {
   const { user } = useAuth();
   const [weekStart, setWeekStart] = useState(() =>
@@ -65,13 +151,19 @@ const SleepDiary = () => {
   const [entries, setEntries] = useState<DayEntry[]>([]);
   const [saving, setSaving] = useState(false);
   const [selectedDay, setSelectedDay] = useState(0);
+  const [activeTab, setActiveTab] = useState("diary");
+
+  // Analytics state
+  const [analyticsPeriod, setAnalyticsPeriod] = useState<"day" | "week" | "month" | "year">("week");
+  const [analyticsData, setAnalyticsData] = useState<StatsData | null>(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
 
   const weekDates = useMemo(
     () => DAYS.map((_, i) => addDays(weekStart, i)),
     [weekStart]
   );
 
-  // Load entries for the week
+  // Load entries for the week (diary tab)
   useEffect(() => {
     if (!user) return;
     const load = async () => {
@@ -114,6 +206,47 @@ const SleepDiary = () => {
     };
     load();
   }, [user, weekStart, weekDates]);
+
+  // Load analytics data
+  const loadAnalytics = useCallback(async () => {
+    if (!user) return;
+    setAnalyticsLoading(true);
+
+    const now = new Date();
+    let startDate: string;
+    let endDate = format(now, "yyyy-MM-dd");
+
+    switch (analyticsPeriod) {
+      case "day":
+        startDate = endDate;
+        break;
+      case "week":
+        startDate = format(startOfWeek(now, { weekStartsOn: 1 }), "yyyy-MM-dd");
+        break;
+      case "month":
+        startDate = format(startOfMonth(now), "yyyy-MM-dd");
+        break;
+      case "year":
+        startDate = format(startOfYear(now), "yyyy-MM-dd");
+        break;
+    }
+
+    const { data } = await supabase
+      .from("sleep_entries")
+      .select("*")
+      .eq("user_id", user.id)
+      .gte("entry_date", startDate)
+      .lte("entry_date", endDate);
+
+    setAnalyticsData(computeStats(data || []));
+    setAnalyticsLoading(false);
+  }, [user, analyticsPeriod]);
+
+  useEffect(() => {
+    if (activeTab === "analytics") {
+      loadAnalytics();
+    }
+  }, [activeTab, analyticsPeriod, loadAnalytics]);
 
   const updateField = (dayIndex: number, field: keyof DayEntry, value: string | boolean) => {
     setEntries((prev) =>
@@ -162,6 +295,13 @@ const SleepDiary = () => {
   const currentEntry = entries[selectedDay];
   const weekLabel = `${format(weekStart, "MMM d")} – ${format(addDays(weekStart, 6), "MMM d, yyyy")}`;
 
+  const periodLabels: Record<string, string> = {
+    day: "today",
+    week: "this week",
+    month: format(new Date(), "MMMM yyyy"),
+    year: format(new Date(), "yyyy"),
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -178,90 +318,135 @@ const SleepDiary = () => {
               <span className="font-serif text-lg font-semibold text-foreground">Sleep Diary</span>
             </div>
           </div>
-          <Button onClick={saveAll} disabled={saving} size="sm" className="rounded-xl">
-            <Save className="w-4 h-4 mr-2" />
-            {saving ? "Saving..." : "Save"}
-          </Button>
+          {activeTab === "diary" && (
+            <Button onClick={saveAll} disabled={saving} size="sm" className="rounded-xl">
+              <Save className="w-4 h-4 mr-2" />
+              {saving ? "Saving..." : "Save"}
+            </Button>
+          )}
         </div>
       </header>
 
       <main className="section-container py-6 space-y-6">
-        {/* Week Navigation */}
-        <div className="flex items-center justify-between">
-          <Button variant="ghost" size="icon" onClick={() => setWeekStart(subWeeks(weekStart, 1))}>
-            <ChevronLeft className="w-5 h-5" />
-          </Button>
-          <h2 className="font-serif text-lg font-semibold text-foreground">{weekLabel}</h2>
-          <Button variant="ghost" size="icon" onClick={() => setWeekStart(addWeeks(weekStart, 1))}>
-            <ChevronRight className="w-5 h-5" />
-          </Button>
-        </div>
+        {/* Main Tabs: Diary / Analytics */}
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="w-full">
+            <TabsTrigger value="diary" className="flex-1 gap-2">
+              <Calendar className="w-4 h-4" />
+              Diary
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex-1 gap-2">
+              <TrendingUp className="w-4 h-4" />
+              Statistics
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Day Tabs */}
-        <div className="flex gap-1 overflow-x-auto pb-2">
-          {DAYS.map((day, i) => (
-            <button
-              key={day}
-              onClick={() => setSelectedDay(i)}
-              className={`flex-shrink-0 px-3 py-2 rounded-xl text-sm font-medium transition-colors ${
-                selectedDay === i
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <div>{day.slice(0, 3)}</div>
-              <div className="text-xs mt-0.5">{format(weekDates[i], "d")}</div>
-            </button>
-          ))}
-        </div>
+          {/* ===== DIARY TAB ===== */}
+          <TabsContent value="diary" className="space-y-6 mt-4">
+            {/* Week Navigation */}
+            <div className="flex items-center justify-between">
+              <Button variant="ghost" size="icon" onClick={() => setWeekStart(subWeeks(weekStart, 1))}>
+                <ChevronLeft className="w-5 h-5" />
+              </Button>
+              <h2 className="font-serif text-lg font-semibold text-foreground">{weekLabel}</h2>
+              <Button variant="ghost" size="icon" onClick={() => setWeekStart(addWeeks(weekStart, 1))}>
+                <ChevronRight className="w-5 h-5" />
+              </Button>
+            </div>
 
-        {currentEntry && (
-          <div className="space-y-6">
-            {/* Sleep Questions */}
-            <div className="glass-card rounded-2xl p-6 space-y-4">
-              <h3 className="font-serif text-lg font-semibold text-foreground">Sleep Log</h3>
-
-              {[
-                { key: "target_wake_time", label: "Target wake-up time?" },
-                { key: "target_bedtime", label: "What's your target bedtime?" },
-                { key: "hours_in_bed", label: "How many hours were you in bed last night?" },
-                { key: "times_woke_up", label: "How many times did you wake up?" },
-                { key: "hours_asleep", label: "How many hours were you asleep for?" },
-                { key: "sleep_efficiency", label: "What was your Sleep Efficiency?" },
-              ].map(({ key, label }) => (
-                <div key={key} className="space-y-1.5">
-                  <label className="text-sm text-muted-foreground">{label}</label>
-                  <Input
-                    value={(currentEntry as any)[key] || ""}
-                    onChange={(e) => updateField(selectedDay, key as keyof DayEntry, e.target.value)}
-                    placeholder="Enter your answer..."
-                    className="bg-muted border-border/50 rounded-xl"
-                  />
-                </div>
+            {/* Day Tabs */}
+            <div className="flex gap-1 overflow-x-auto pb-2">
+              {DAYS.map((day, i) => (
+                <button
+                  key={day}
+                  onClick={() => setSelectedDay(i)}
+                  className={`flex-shrink-0 px-3 py-2 rounded-xl text-sm font-medium transition-colors ${
+                    selectedDay === i
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <div>{day.slice(0, 3)}</div>
+                  <div className="text-xs mt-0.5">{format(weekDates[i], "d")}</div>
+                </button>
               ))}
             </div>
 
-            {/* Habit Checklist */}
-            <div className="glass-card rounded-2xl p-6 space-y-4">
-              <h3 className="font-serif text-lg font-semibold text-foreground">Daily Habits</h3>
-              <div className="space-y-3">
-                {HABITS.map(({ key, label }) => (
-                  <label key={key} className="flex items-center gap-3 cursor-pointer group">
-                    <Checkbox
-                      checked={currentEntry[key as HabitKey]}
-                      onCheckedChange={(checked) =>
-                        updateField(selectedDay, key as keyof DayEntry, !!checked)
-                      }
-                    />
-                    <span className="text-sm text-foreground group-hover:text-primary transition-colors">
-                      {label}
-                    </span>
-                  </label>
-                ))}
+            {currentEntry && (
+              <div className="space-y-6">
+                {/* Sleep Questions */}
+                <div className="glass-card rounded-2xl p-6 space-y-4">
+                  <h3 className="font-serif text-lg font-semibold text-foreground">Sleep Log</h3>
+
+                  {[
+                    { key: "target_wake_time", label: "Target wake-up time?" },
+                    { key: "target_bedtime", label: "What's your target bedtime?" },
+                    { key: "hours_in_bed", label: "How many hours were you in bed last night?" },
+                    { key: "times_woke_up", label: "How many times did you wake up?" },
+                    { key: "hours_asleep", label: "How many hours were you asleep for?" },
+                    { key: "sleep_efficiency", label: "What was your Sleep Efficiency?" },
+                  ].map(({ key, label }) => (
+                    <div key={key} className="space-y-1.5">
+                      <label className="text-sm text-muted-foreground">{label}</label>
+                      <Input
+                        value={(currentEntry as any)[key] || ""}
+                        onChange={(e) => updateField(selectedDay, key as keyof DayEntry, e.target.value)}
+                        placeholder="Enter your answer..."
+                        className="bg-muted border-border/50 rounded-xl"
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                {/* Habit Checklist */}
+                <div className="glass-card rounded-2xl p-6 space-y-4">
+                  <h3 className="font-serif text-lg font-semibold text-foreground">Daily Habits</h3>
+                  <div className="space-y-3">
+                    {HABITS.map(({ key, label }) => (
+                      <label key={key} className="flex items-center gap-3 cursor-pointer group">
+                        <Checkbox
+                          checked={currentEntry[key as HabitKey]}
+                          onCheckedChange={(checked) =>
+                            updateField(selectedDay, key as keyof DayEntry, !!checked)
+                          }
+                        />
+                        <span className="text-sm text-foreground group-hover:text-primary transition-colors">
+                          {label}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
               </div>
+            )}
+          </TabsContent>
+
+          {/* ===== ANALYTICS TAB ===== */}
+          <TabsContent value="analytics" className="space-y-6 mt-4">
+            {/* Period selector */}
+            <div className="flex gap-2 justify-center">
+              {(["day", "week", "month", "year"] as const).map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setAnalyticsPeriod(p)}
+                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors capitalize ${
+                    analyticsPeriod === p
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {p}
+                </button>
+              ))}
             </div>
-          </div>
-        )}
+
+            {analyticsLoading ? (
+              <div className="text-center py-12 text-muted-foreground">Loading statistics...</div>
+            ) : (
+              <StatsView stats={analyticsData} periodLabel={periodLabels[analyticsPeriod]} />
+            )}
+          </TabsContent>
+        </Tabs>
       </main>
     </div>
   );
