@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect } from "react";
-import { Moon, Send, ArrowLeft } from "lucide-react";
+import { Moon, Send, ArrowLeft, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -11,10 +13,12 @@ const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/sleep-chat`;
 
 async function streamChat({
   messages,
+  token,
   onDelta,
   onDone,
 }: {
   messages: Msg[];
+  token: string;
   onDelta: (text: string) => void;
   onDone: () => void;
 }) {
@@ -22,7 +26,7 @@ async function streamChat({
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ messages }),
   });
@@ -96,23 +100,105 @@ async function streamChat({
 }
 
 const SleepChat = () => {
+  const { user } = useAuth();
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [loadingHistory, setLoadingHistory] = useState(true);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  // Load most recent conversation on mount
+  useEffect(() => {
+    if (!user) return;
+    const loadRecent = async () => {
+      const { data: conv } = await supabase
+        .from("conversations")
+        .select("id")
+        .eq("user_id", user.id)
+        .order("updated_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (conv) {
+        setConversationId(conv.id);
+        const { data: msgs } = await supabase
+          .from("messages")
+          .select("role, content")
+          .eq("conversation_id", conv.id)
+          .order("created_at", { ascending: true });
+        if (msgs) {
+          setMessages(msgs.filter((m: any) => m.role !== "system") as Msg[]);
+        }
+      }
+      setLoadingHistory(false);
+    };
+    loadRecent();
+  }, [user]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  const createConversation = async (): Promise<string | null> => {
+    if (!user) return null;
+    const { data, error } = await supabase
+      .from("conversations")
+      .insert({ user_id: user.id, title: "Sleep Chat" })
+      .select("id")
+      .single();
+    if (error || !data) {
+      console.error("Failed to create conversation:", error);
+      return null;
+    }
+    return data.id;
+  };
+
+  const saveMessage = async (convId: string, role: string, content: string) => {
+    await supabase.from("messages").insert({
+      conversation_id: convId,
+      role,
+      content,
+    });
+  };
+
+  const startNewConversation = () => {
+    setMessages([]);
+    setConversationId(null);
+  };
+
   const send = async () => {
     const text = input.trim();
-    if (!text || isLoading) return;
+    if (!text || isLoading || text.length > 2000) {
+      if (text.length > 2000) toast.error("Message too long (max 2000 characters)");
+      return;
+    }
 
     const userMsg: Msg = { role: "user", content: text };
     setInput("");
     setMessages((prev) => [...prev, userMsg]);
     setIsLoading(true);
+
+    // Ensure conversation exists
+    let convId = conversationId;
+    if (!convId) {
+      convId = await createConversation();
+      if (!convId) {
+        toast.error("Failed to start conversation");
+        setIsLoading(false);
+        return;
+      }
+      setConversationId(convId);
+    }
+
+    // Save user message
+    await saveMessage(convId, "user", text);
+
+    // Update conversation timestamp
+    await supabase.from("conversations").update({ updated_at: new Date().toISOString() }).eq("id", convId);
+
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
     let assistantSoFar = "";
     const upsert = (chunk: string) => {
@@ -129,10 +215,19 @@ const SleepChat = () => {
     };
 
     try {
+      // Send last 10 messages for context
+      const contextMessages = [...messages, userMsg].slice(-10);
       await streamChat({
-        messages: [...messages, userMsg],
+        messages: contextMessages,
+        token,
         onDelta: upsert,
-        onDone: () => setIsLoading(false),
+        onDone: async () => {
+          setIsLoading(false);
+          // Save assistant message
+          if (assistantSoFar && convId) {
+            await saveMessage(convId, "assistant", assistantSoFar);
+          }
+        },
       });
     } catch (e) {
       console.error(e);
@@ -145,26 +240,39 @@ const SleepChat = () => {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
-        <div className="section-container flex items-center gap-4 h-16">
-          <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors">
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-              <Moon className="w-4 h-4 text-primary" />
-            </div>
-            <div>
-              <p className="font-serif text-sm font-semibold text-foreground">Silvery's Sleep Guide</p>
-              <p className="text-xs text-muted-foreground">Your friendly sleep companion</p>
+        <div className="section-container flex items-center justify-between h-16">
+          <div className="flex items-center gap-4">
+            <Link to="/dashboard" className="text-muted-foreground hover:text-foreground transition-colors">
+              <ArrowLeft className="w-5 h-5" />
+            </Link>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <Moon className="w-4 h-4 text-primary" />
+              </div>
+              <div>
+                <p className="font-serif text-sm font-semibold text-foreground">Silvery's Sleep Guide</p>
+                <p className="text-xs text-muted-foreground">Your friendly sleep companion</p>
+              </div>
             </div>
           </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={startNewConversation}
+            title="New conversation"
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <Plus className="w-5 h-5" />
+          </Button>
         </div>
       </header>
 
       {/* Messages */}
       <main className="flex-1 overflow-y-auto py-6">
         <div className="section-container space-y-4">
-          {messages.length === 0 && (
+          {loadingHistory ? (
+            <div className="text-center py-12 text-muted-foreground">Loading conversation...</div>
+          ) : messages.length === 0 ? (
             <div className="text-center py-20 space-y-4">
               <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
                 <Moon className="w-8 h-8 text-primary" />
@@ -178,7 +286,7 @@ const SleepChat = () => {
                   (q) => (
                     <button
                       key={q}
-                      onClick={() => { setInput(q); }}
+                      onClick={() => setInput(q)}
                       className="text-sm px-4 py-2 rounded-full border border-border/50 text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors"
                     >
                       {q}
@@ -187,7 +295,7 @@ const SleepChat = () => {
                 )}
               </div>
             </div>
-          )}
+          ) : null}
 
           {messages.map((msg, i) => (
             <div
@@ -242,6 +350,7 @@ const SleepChat = () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask about sleep, bedding, or routines..."
+              maxLength={2000}
               className="flex-1 bg-muted border border-border/50 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
               disabled={isLoading}
             />
