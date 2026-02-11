@@ -140,6 +140,7 @@ const SleepDiary = () => {
     startOfWeek(new Date(), { weekStartsOn: 1 })
   );
   const [entries, setEntries] = useState<DayEntry[]>([]);
+  const [initialized, setInitialized] = useState(false);
   const [saving, setSaving] = useState(false);
   const [selectedDay, setSelectedDay] = useState(0);
   const [activeTab, setActiveTab] = useState("diary");
@@ -158,8 +159,21 @@ const SleepDiary = () => {
     [weekStart]
   );
 
+  // Reset initialized when week changes so entries re-initialize
   useEffect(() => {
-    if (!userId) return;
+    setInitialized(false);
+  }, [weekStart]);
+
+  useEffect(() => {
+    if (!userId) {
+      // No auth — initialize empty entries for the week so the form renders
+      if (!initialized) {
+        const week = DAYS.map((day, i) => emptyEntry(weekDates[i], day));
+        setEntries(week);
+        setInitialized(true);
+      }
+      return;
+    }
     const load = async () => {
       const startDate = format(weekStart, "yyyy-MM-dd");
       const endDate = format(addDays(weekStart, 6), "yyyy-MM-dd");
@@ -187,9 +201,10 @@ const SleepDiary = () => {
         return emptyEntry(date, day);
       });
       setEntries(week);
+      setInitialized(true);
     };
     load();
-  }, [userId, weekStart, weekDates]);
+  }, [userId, weekStart, weekDates, initialized]);
 
   const loadAnalytics = useCallback(async () => {
     if (!userId) return;
