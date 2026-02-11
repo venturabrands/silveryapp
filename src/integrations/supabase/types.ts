@@ -41,6 +41,69 @@ export type Database = {
         }
         Relationships: []
       }
+      sleep_entries: {
+        Row: {
+          created_at: string
+          day_of_week: string
+          entry_date: string
+          hours_asleep: string | null
+          hours_in_bed: string | null
+          id: string
+          morning_sunlight: boolean
+          no_caffeine_after_2pm: boolean
+          no_eating_2hr: boolean
+          no_screens_1hr: boolean
+          outside_20_min: boolean
+          phone_out_bedroom: boolean
+          sleep_efficiency: string | null
+          target_bedtime: string | null
+          target_wake_time: string | null
+          times_woke_up: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          day_of_week: string
+          entry_date: string
+          hours_asleep?: string | null
+          hours_in_bed?: string | null
+          id?: string
+          morning_sunlight?: boolean
+          no_caffeine_after_2pm?: boolean
+          no_eating_2hr?: boolean
+          no_screens_1hr?: boolean
+          outside_20_min?: boolean
+          phone_out_bedroom?: boolean
+          sleep_efficiency?: string | null
+          target_bedtime?: string | null
+          target_wake_time?: string | null
+          times_woke_up?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          day_of_week?: string
+          entry_date?: string
+          hours_asleep?: string | null
+          hours_in_bed?: string | null
+          id?: string
+          morning_sunlight?: boolean
+          no_caffeine_after_2pm?: boolean
+          no_eating_2hr?: boolean
+          no_screens_1hr?: boolean
+          outside_20_min?: boolean
+          phone_out_bedroom?: boolean
+          sleep_efficiency?: string | null
+          target_bedtime?: string | null
+          target_wake_time?: string | null
+          times_woke_up?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
