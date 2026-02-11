@@ -322,7 +322,7 @@ const SleepDiary = () => {
                     { key: "hours_in_bed", label: "How many hours were you in bed last night?" },
                     { key: "times_woke_up", label: "How many times did you wake up?" },
                     { key: "hours_asleep", label: "How many hours were you asleep for?" },
-                    { key: "sleep_efficiency", label: "What was your Sleep Efficiency?" },
+                    { key: "sleep_efficiency", label: "What was your Sleep Efficiency? (e.g. 1–10)" },
                   ].map(({ key, label }) => (
                     <div key={key} className="space-y-1.5">
                       <label className="text-sm text-muted-foreground">{label}</label>
