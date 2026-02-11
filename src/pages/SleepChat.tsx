@@ -1,11 +1,13 @@
 import { useState, useRef, useEffect } from "react";
-import { Moon, Send, ArrowLeft, Plus } from "lucide-react";
+import { Moon, Send, ArrowLeft, Plus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useEntitlement } from "@/hooks/useEntitlement";
+import Paywall from "@/components/Paywall";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -101,6 +103,7 @@ async function streamChat({
 
 const SleepChat = () => {
   const { user } = useAuth();
+  const { entitled, loading: entitlementLoading } = useEntitlement();
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -110,7 +113,7 @@ const SleepChat = () => {
 
   // Load most recent conversation on mount
   useEffect(() => {
-    if (!user) return;
+    if (!user || !entitled) return;
     const loadRecent = async () => {
       const { data: conv } = await supabase
         .from("conversations")
@@ -134,11 +137,25 @@ const SleepChat = () => {
       setLoadingHistory(false);
     };
     loadRecent();
-  }, [user]);
+  }, [user, entitled]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Show loading while checking entitlement
+  if (entitlementLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  // Show paywall if not entitled
+  if (!entitled) {
+    return <Paywall />;
+  }
 
   const createConversation = async (): Promise<string | null> => {
     if (!user) return null;
