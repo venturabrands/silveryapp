@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { Moon, ArrowLeft, ChevronLeft, ChevronRight, Save, TrendingUp, Calendar, BarChart3 } from "lucide-react";
+import { Moon, ArrowLeft, ChevronLeft, ChevronRight, Save, TrendingUp, Calendar, BarChart3, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -8,6 +8,8 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { useEntitlement } from "@/hooks/useEntitlement";
+import Paywall from "@/components/Paywall";
 import { format, startOfWeek, addDays, subWeeks, addWeeks, subDays, subMonths, subYears, startOfMonth, startOfYear, endOfMonth, endOfYear } from "date-fns";
 import { Progress } from "@/components/ui/progress";
 
@@ -145,6 +147,7 @@ const StatsView = ({ stats, periodLabel }: { stats: StatsData | null; periodLabe
 
 const SleepDiary = () => {
   const { user } = useAuth();
+  const { entitled, loading: entitlementLoading } = useEntitlement();
   const [weekStart, setWeekStart] = useState(() =>
     startOfWeek(new Date(), { weekStartsOn: 1 })
   );
@@ -247,6 +250,20 @@ const SleepDiary = () => {
       loadAnalytics();
     }
   }, [activeTab, analyticsPeriod, loadAnalytics]);
+
+  // Show loading while checking entitlement
+  if (entitlementLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  // Show paywall if not entitled
+  if (!entitled) {
+    return <Paywall />;
+  }
 
   const updateField = (dayIndex: number, field: keyof DayEntry, value: string | boolean) => {
     setEntries((prev) =>
