@@ -33,8 +33,11 @@ const HeroSection = () => {
           <span className="gradient-text">start tonight</span>
         </h1>
 
-        <p className="max-w-xl mx-auto text-lg md:text-xl text-muted-foreground leading-relaxed mb-12 animate-fade-up-delay-2">
-          Understand your sleep patterns, reduce sleep debt, and unlock the energy your body is designed to have.
+        <p className="max-w-xl mx-auto text-lg md:text-xl text-muted-foreground leading-relaxed mb-6 animate-fade-up-delay-2">
+          Free to download. Silvery customers unlock full access with their activation code.
+        </p>
+        <p className="text-sm text-muted-foreground mb-12 animate-fade-up-delay-2">
+          Includes AI Sleep Expert · Sleep Diary · Personalised insights
         </p>
 
         <div className="flex justify-center animate-fade-up-delay-3">

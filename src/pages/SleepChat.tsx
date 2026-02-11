@@ -43,6 +43,11 @@ async function streamChat({
     onDone();
     return;
   }
+  if (resp.status === 403) {
+    toast.error("You've used your free preview. Enter a Silvery code for full access.");
+    onDone();
+    return;
+  }
   if (!resp.ok || !resp.body) throw new Error("Failed to start stream");
 
   const reader = resp.body.getReader();
@@ -109,12 +114,34 @@ const SleepChat = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [loadingHistory, setLoadingHistory] = useState(true);
+  const [freeUsed, setFreeUsed] = useState<number>(0);
+  const [previewExhausted, setPreviewExhausted] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  // Load most recent conversation on mount
+  const FREE_MESSAGE_LIMIT = 1;
+
+  // Load free message count and conversation history
   useEffect(() => {
-    if (!user || !entitled) return;
-    const loadRecent = async () => {
+    if (!user) return;
+
+    const load = async () => {
+      // Load free_messages_used from profile
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("free_messages_used")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      const used = profile?.free_messages_used ?? 0;
+      setFreeUsed(used);
+
+      if (!entitled && used >= FREE_MESSAGE_LIMIT) {
+        setPreviewExhausted(true);
+        setLoadingHistory(false);
+        return;
+      }
+
+      // Load most recent conversation
       const { data: conv } = await supabase
         .from("conversations")
         .select("id")
@@ -136,7 +163,7 @@ const SleepChat = () => {
       }
       setLoadingHistory(false);
     };
-    loadRecent();
+    load();
   }, [user, entitled]);
 
   useEffect(() => {
@@ -152,8 +179,8 @@ const SleepChat = () => {
     );
   }
 
-  // Show paywall if not entitled
-  if (!entitled) {
+  // Show paywall if preview exhausted and not entitled
+  if (!entitled && previewExhausted) {
     return <Paywall />;
   }
 
@@ -191,6 +218,12 @@ const SleepChat = () => {
       return;
     }
 
+    // Check free message limit for non-entitled users
+    if (!entitled && freeUsed >= FREE_MESSAGE_LIMIT) {
+      setPreviewExhausted(true);
+      return;
+    }
+
     const userMsg: Msg = { role: "user", content: text };
     setInput("");
     setMessages((prev) => [...prev, userMsg]);
@@ -210,6 +243,20 @@ const SleepChat = () => {
 
     // Save user message
     await saveMessage(convId, "user", text);
+
+    // Increment free_messages_used for non-entitled users
+    if (!entitled) {
+      const newCount = freeUsed + 1;
+      setFreeUsed(newCount);
+      await supabase
+        .from("profiles")
+        .update({ free_messages_used: newCount })
+        .eq("user_id", user!.id);
+
+      if (newCount >= FREE_MESSAGE_LIMIT) {
+        // Will show paywall after this message completes
+      }
+    }
 
     // Update conversation timestamp
     await supabase.from("conversations").update({ updated_at: new Date().toISOString() }).eq("id", convId);
@@ -244,6 +291,10 @@ const SleepChat = () => {
           if (assistantSoFar && convId) {
             await saveMessage(convId, "assistant", assistantSoFar);
           }
+          // After response, if free limit reached, show paywall
+          if (!entitled && freeUsed + 1 >= FREE_MESSAGE_LIMIT) {
+            setPreviewExhausted(true);
+          }
         },
       });
     } catch (e) {
@@ -252,6 +303,8 @@ const SleepChat = () => {
       setIsLoading(false);
     }
   };
+
+  const showPreviewBanner = !entitled && freeUsed < FREE_MESSAGE_LIMIT;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -272,17 +325,29 @@ const SleepChat = () => {
               </div>
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={startNewConversation}
-            title="New conversation"
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <Plus className="w-5 h-5" />
-          </Button>
+          {entitled && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={startNewConversation}
+              title="New conversation"
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <Plus className="w-5 h-5" />
+            </Button>
+          )}
         </div>
       </header>
+
+      {/* Free preview banner */}
+      {showPreviewBanner && (
+        <div className="bg-primary/10 border-b border-primary/20 px-4 py-2 text-center">
+          <p className="text-sm text-foreground">
+            🌙 Free preview — you have <strong>{FREE_MESSAGE_LIMIT - freeUsed}</strong> message{FREE_MESSAGE_LIMIT - freeUsed !== 1 ? "s" : ""} remaining.{" "}
+            <Link to="/account" className="text-primary underline">Enter your Silvery code</Link> for full access.
+          </p>
+        </div>
+      )}
 
       {/* Messages */}
       <main className="flex-1 overflow-y-auto py-6">
