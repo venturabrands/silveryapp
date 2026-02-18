@@ -1,0 +1,76 @@
+{
+  "kind": "cloudflare::Worker",
+  "id": "website",
+  "fqn": "silvery-app/dev/website",
+  "seq": 5,
+  "data": {},
+  "status": "updated",
+  "output": {
+    "Symbol(alchemy::ResourceKind)": "cloudflare::Worker",
+    "Symbol(alchemy::ResourceID)": "website",
+    "Symbol(alchemy::ResourceFQN)": "silvery-app/dev/website",
+    "Symbol(alchemy::ResourceScope)": {
+      "@scope": null
+    },
+    "Symbol(alchemy::ResourceSeq)": 5,
+    "compatibility": "node",
+    "bindings": {
+      "VITE_SERVER_URL": "https://silvery-app-ai-worker-dev.spring-wave-1929.workers.dev/",
+      "ASSETS": {
+        "type": "assets",
+        "path": "dist/client"
+      }
+    },
+    "name": "silvery-app-website-dev",
+    "cwd": "",
+    "compatibilityFlags": [
+      "nodejs_compat",
+      "nodejs_compat_populate_process_env"
+    ],
+    "compatibilityDate": "2026-02-12",
+    "assets": {
+      "html_handling": "auto-trailing-slash",
+      "not_found_handling": "single-page-application",
+      "run_worker_first": false,
+      "directory": "./dist/client"
+    },
+    "entrypoint": ".alchemy/local/worker.js",
+    "dev": {
+      "hasRemote": true
+    },
+    "type": "service",
+    "id": "website",
+    "format": "esm",
+    "createdAt": {
+      "@date": "2026-02-18T19:30:07.769Z"
+    },
+    "updatedAt": {
+      "@date": "2026-02-18T19:48:08.837Z"
+    },
+    "url": "https://silvery-app-website-dev.spring-wave-1929.workers.dev"
+  },
+  "props": {
+    "compatibility": "node",
+    "bindings": {
+      "VITE_SERVER_URL": "https://silvery-app-ai-worker-dev.spring-wave-1929.workers.dev/",
+      "ASSETS": {
+        "type": "assets",
+        "path": "dist/client"
+      }
+    },
+    "name": "silvery-app-website-dev",
+    "cwd": "",
+    "compatibilityFlags": [
+      "nodejs_compat",
+      "nodejs_compat_populate_process_env"
+    ],
+    "compatibilityDate": "2026-02-12",
+    "assets": {
+      "html_handling": "auto-trailing-slash",
+      "not_found_handling": "single-page-application",
+      "run_worker_first": false,
+      "directory": "./dist/client"
+    },
+    "entrypoint": ".alchemy/local/worker.js"
+  }
+}

@@ -1,0 +1,153 @@
+{
+  "kind": "cloudflare::Worker",
+  "id": "ai-worker",
+  "fqn": "silvery-app/vrabota/ai-worker",
+  "seq": 3,
+  "data": {},
+  "status": "updated",
+  "output": {
+    "Symbol(alchemy::ResourceKind)": "cloudflare::Worker",
+    "Symbol(alchemy::ResourceID)": "ai-worker",
+    "Symbol(alchemy::ResourceFQN)": "silvery-app/vrabota/ai-worker",
+    "Symbol(alchemy::ResourceScope)": {
+      "@scope": null
+    },
+    "Symbol(alchemy::ResourceSeq)": 3,
+    "entrypoint": "./server/worker.ts",
+    "compatibility": "node",
+    "bindings": {
+      "DB": {
+        "Symbol(alchemy::ResourceKind)": "cloudflare::D1Database",
+        "Symbol(alchemy::ResourceID)": "silvery-db",
+        "Symbol(alchemy::ResourceFQN)": "silvery-app/vrabota/silvery-db",
+        "Symbol(alchemy::ResourceScope)": {
+          "@scope": null
+        },
+        "Symbol(alchemy::ResourceSeq)": 1,
+        "type": "d1",
+        "id": "47de7692-9f15-4bb7-ba28-00dce128e818",
+        "name": "silvery-app-silvery-db-vrabota",
+        "dev": {
+          "id": "silvery-app-silvery-db-vrabota",
+          "remote": true
+        },
+        "migrationsDir": "./server/db/migrations",
+        "migrationsTable": "d1_migrations",
+        "jurisdiction": "default"
+      },
+      "KV": {
+        "Symbol(alchemy::ResourceKind)": "cloudflare::KVNamespace",
+        "Symbol(alchemy::ResourceID)": "silvery-kv",
+        "Symbol(alchemy::ResourceFQN)": "silvery-app/vrabota/silvery-kv",
+        "Symbol(alchemy::ResourceScope)": {
+          "@scope": null
+        },
+        "Symbol(alchemy::ResourceSeq)": 0,
+        "type": "kv_namespace",
+        "namespaceId": "5ee81e33fe5b42d391fbd21716c4c785",
+        "title": "silvery-app-silvery-kv-vrabota",
+        "dev": {
+          "id": "silvery-kv",
+          "remote": true
+        },
+        "createdAt": 1771329164678,
+        "modifiedAt": 1771329164678
+      },
+      "AI": {
+        "type": "ai"
+      },
+      "AI_GATEWAY_ID": "silvery-app-ai-gateway-vrabota",
+      "API_GATEWAY_KEY": {
+        "type": "secrets_store_secret",
+        "name": "API_GATEWAY_KEY_LOCAL",
+        "storeId": "c7ea729dccaa44cc9270c90c7a6ef822"
+      },
+      "RATE_LIMIT": {
+        "type": "ratelimit",
+        "namespace_id": 1001,
+        "simple": {
+          "limit": 1500,
+          "period": 60
+        }
+      }
+    },
+    "type": "service",
+    "id": "ai-worker",
+    "name": "silvery-app-ai-worker-vrabota",
+    "cwd": "",
+    "compatibilityDate": "2026-02-12",
+    "compatibilityFlags": [
+      "nodejs_compat",
+      "nodejs_compat_populate_process_env"
+    ],
+    "format": "esm",
+    "createdAt": 1771354044170,
+    "updatedAt": 1771591171944,
+    "url": "http://localhost:1337/",
+    "routes": [],
+    "domains": [],
+    "dev": {
+      "hasRemote": false
+    }
+  },
+  "props": {
+    "entrypoint": "./server/worker.ts",
+    "compatibility": "node",
+    "bindings": {
+      "DB": {
+        "Symbol(alchemy::ResourceKind)": "cloudflare::D1Database",
+        "Symbol(alchemy::ResourceID)": "silvery-db",
+        "Symbol(alchemy::ResourceFQN)": "silvery-app/vrabota/silvery-db",
+        "Symbol(alchemy::ResourceScope)": {
+          "@scope": null
+        },
+        "Symbol(alchemy::ResourceSeq)": 1,
+        "type": "d1",
+        "id": "47de7692-9f15-4bb7-ba28-00dce128e818",
+        "name": "silvery-app-silvery-db-vrabota",
+        "dev": {
+          "id": "silvery-app-silvery-db-vrabota",
+          "remote": true
+        },
+        "migrationsDir": "./server/db/migrations",
+        "migrationsTable": "d1_migrations",
+        "jurisdiction": "default"
+      },
+      "KV": {
+        "Symbol(alchemy::ResourceKind)": "cloudflare::KVNamespace",
+        "Symbol(alchemy::ResourceID)": "silvery-kv",
+        "Symbol(alchemy::ResourceFQN)": "silvery-app/vrabota/silvery-kv",
+        "Symbol(alchemy::ResourceScope)": {
+          "@scope": null
+        },
+        "Symbol(alchemy::ResourceSeq)": 0,
+        "type": "kv_namespace",
+        "namespaceId": "5ee81e33fe5b42d391fbd21716c4c785",
+        "title": "silvery-app-silvery-kv-vrabota",
+        "dev": {
+          "id": "silvery-kv",
+          "remote": true
+        },
+        "createdAt": 1771329164678,
+        "modifiedAt": 1771329164678
+      },
+      "AI": {
+        "type": "ai"
+      },
+      "AI_GATEWAY_ID": "silvery-app-ai-gateway-vrabota",
+      "API_GATEWAY_KEY": {
+        "type": "secrets_store_secret",
+        "name": "API_GATEWAY_KEY_LOCAL",
+        "storeId": "c7ea729dccaa44cc9270c90c7a6ef822"
+      },
+      "RATE_LIMIT": {
+        "type": "ratelimit",
+        "namespace_id": 1001,
+        "simple": {
+          "limit": 1500,
+          "period": 60
+        }
+      }
+    }
+  }
+}

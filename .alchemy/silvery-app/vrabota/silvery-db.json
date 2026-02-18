@@ -1,0 +1,45 @@
+{
+  "kind": "cloudflare::D1Database",
+  "id": "silvery-db",
+  "fqn": "silvery-app/vrabota/silvery-db",
+  "seq": 1,
+  "data": {},
+  "status": "updated",
+  "output": {
+    "Symbol(alchemy::ResourceKind)": "cloudflare::D1Database",
+    "Symbol(alchemy::ResourceID)": "silvery-db",
+    "Symbol(alchemy::ResourceFQN)": "silvery-app/vrabota/silvery-db",
+    "Symbol(alchemy::ResourceScope)": {
+      "@scope": null
+    },
+    "Symbol(alchemy::ResourceSeq)": 1,
+    "type": "d1",
+    "id": "47de7692-9f15-4bb7-ba28-00dce128e818",
+    "name": "silvery-app-silvery-db-vrabota",
+    "dev": {
+      "id": "silvery-app-silvery-db-vrabota",
+      "remote": true
+    },
+    "migrationsDir": "./server/db/migrations",
+    "migrationsTable": "d1_migrations",
+    "jurisdiction": "default"
+  },
+  "props": {
+    "migrationsDir": "./server/db/migrations",
+    "dev": {
+      "remote": true,
+      "force": true
+    },
+    "migrationsFiles": [
+      {
+        "id": "0000_secret_mephistopheles.sql",
+        "hash": "be2bb4b1684fda0743331bed9f39bc686902abfca959df8ba0d6b4727bb5ea66"
+      },
+      {
+        "id": "0001_slow_psylocke.sql",
+        "hash": "53ca19a24c782f5935ce3478e3029d6e158608b3ab19c58e0b02466839a77725"
+      }
+    ],
+    "importFiles": []
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "kind": "cloudflare::Worker",
+  "id": "website",
+  "fqn": "silvery-app/vrabota/website",
+  "seq": 4,
+  "data": {},
+  "status": "updated",
+  "output": {
+    "Symbol(alchemy::ResourceKind)": "cloudflare::Worker",
+    "Symbol(alchemy::ResourceID)": "website",
+    "Symbol(alchemy::ResourceFQN)": "silvery-app/vrabota/website",
+    "Symbol(alchemy::ResourceScope)": {
+      "@scope": null
+    },
+    "Symbol(alchemy::ResourceSeq)": 4,
+    "compatibility": "node",
+    "bindings": {
+      "VITE_SERVER_URL": "http://localhost:1337/"
+    },
+    "name": "silvery-app-website-vrabota",
+    "cwd": "",
+    "compatibilityFlags": [
+      "nodejs_compat",
+      "nodejs_compat_populate_process_env"
+    ],
+    "compatibilityDate": "2026-02-12",
+    "assets": {
+      "html_handling": "auto-trailing-slash",
+      "not_found_handling": "single-page-application",
+      "run_worker_first": false,
+      "directory": "./dist/client"
+    },
+    "entrypoint": ".alchemy/local/worker.js",
+    "dev": {
+      "hasRemote": false
+    },
+    "type": "service",
+    "id": "website",
+    "format": "esm",
+    "createdAt": 1771354046059,
+    "updatedAt": 1771591174100,
+    "url": "http://localhost:8080/",
+    "routes": [],
+    "domains": []
+  },
+  "props": {
+    "compatibility": "node",
+    "bindings": {
+      "VITE_SERVER_URL": "http://localhost:1337/"
+    },
+    "name": "silvery-app-website-vrabota",
+    "cwd": "",
+    "compatibilityFlags": [
+      "nodejs_compat",
+      "nodejs_compat_populate_process_env"
+    ],
+    "compatibilityDate": "2026-02-12",
+    "assets": {
+      "html_handling": "auto-trailing-slash",
+      "not_found_handling": "single-page-application",
+      "run_worker_first": false,
+      "directory": "./dist/client"
+    },
+    "entrypoint": ".alchemy/local/worker.js",
+    "dev": {
+      "url": "http://localhost:8080/"
+    }
+  }
+}
