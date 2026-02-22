@@ -9,6 +9,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getOrCreateUserId } from "@/lib/userId";
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
+if (!SERVER_URL) throw new Error("VITE_SERVER_URL is not set — cannot reach AI backend");
 const userId = getOrCreateUserId();
 
 const WELCOME_MESSAGE = `Hi there! I'm Silvery's Sleep Guide, your friendly sleep companion.
@@ -131,7 +132,7 @@ const SleepChat = () => {
   };
 
   return (
-    <div className="h-[100dvh] bg-background flex flex-col">
+    <div className="h-[100dvh] bg-background flex flex-col overflow-x-hidden pt-[env(safe-area-inset-top)]">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
         <div className="section-container flex items-center justify-between h-14">
@@ -312,7 +313,7 @@ const SleepChat = () => {
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask about sleep, bedding, or routines..."
               maxLength={2000}
-              className="flex-1 bg-muted border border-border/50 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+              className="flex-1 bg-muted border border-border/50 rounded-xl px-4 py-3 text-base text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
               disabled={isLoading}
             />
             <Button

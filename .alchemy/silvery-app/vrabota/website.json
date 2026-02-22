@@ -15,7 +15,7 @@
     "Symbol(alchemy::ResourceSeq)": 4,
     "compatibility": "node",
     "bindings": {
-      "VITE_SERVER_URL": "http://localhost:1337/"
+      "VITE_SERVER_URL": "http://localhost:1338/"
     },
     "name": "silvery-app-website-vrabota",
     "cwd": "",
@@ -38,7 +38,7 @@
     "id": "website",
     "format": "esm",
     "createdAt": 1771354046059,
-    "updatedAt": 1771591174100,
+    "updatedAt": 1771759250656,
     "url": "http://localhost:8080/",
     "routes": [],
     "domains": []
@@ -46,7 +46,7 @@
   "props": {
     "compatibility": "node",
     "bindings": {
-      "VITE_SERVER_URL": "http://localhost:1337/"
+      "VITE_SERVER_URL": "http://localhost:1338/"
     },
     "name": "silvery-app-website-vrabota",
     "cwd": "",

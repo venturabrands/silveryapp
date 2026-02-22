@@ -18,7 +18,7 @@ Before answering questions about these libraries, fetch their llms.txt:
 | AI SDK                | https://ai-sdk.dev/llms.txt                 |
 | Better Auth           | https://www.better-auth.com/llms.txt        |
 | Shadcn/UI             | https://ui.shadcn.com/llms.txt              |
-| Shadcn/UI             | https://ui.shadcn.com/llms.txt              |
+| Capacitor             | https://capacitorjs.com/docs                |
 
 Steps:
 

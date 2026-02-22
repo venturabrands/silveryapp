@@ -1,9 +1,9 @@
-import type { CapacitorConfig } from "@capacitor/cli";
+import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: "app.silvery.com",
-  appName: "silveryapp",
-  webDir: "dist/client",
+  appId: 'com.silvery.app',
+  appName: 'silvery-app',
+  webDir: 'dist/client'
 };
 
 export default config;
