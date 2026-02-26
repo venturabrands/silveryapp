@@ -1,0 +1,36 @@
+{
+  "kind": "cloudflare::AiGateway",
+  "id": "ai-gateway",
+  "fqn": "silvery-app/dev/ai-gateway",
+  "seq": 2,
+  "data": {},
+  "status": "created",
+  "output": {
+    "Symbol(alchemy::ResourceKind)": "cloudflare::AiGateway",
+    "Symbol(alchemy::ResourceID)": "ai-gateway",
+    "Symbol(alchemy::ResourceFQN)": "silvery-app/dev/ai-gateway",
+    "Symbol(alchemy::ResourceScope)": {
+      "@scope": null
+    },
+    "Symbol(alchemy::ResourceSeq)": 2,
+    "cacheInvalidateOnUpdate": true,
+    "cacheTtl": 0,
+    "collectLogs": true,
+    "rateLimitingInterval": 0,
+    "rateLimitingLimit": 0,
+    "rateLimitingTechnique": "fixed",
+    "authentication": true,
+    "id": "silvery-app-ai-gateway-dev",
+    "gatewayName": "silvery-app-ai-gateway-dev",
+    "createdAt": "2026-02-18 19:29:29",
+    "modifiedAt": "2026-02-18 19:29:29",
+    "logManagement": null,
+    "logManagementStrategy": null,
+    "logpush": false,
+    "logpushPublicKey": null,
+    "type": "ai_gateway"
+  },
+  "props": {
+    "authentication": true
+  }
+}

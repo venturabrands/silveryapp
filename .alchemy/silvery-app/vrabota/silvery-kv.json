@@ -1,0 +1,32 @@
+{
+  "kind": "cloudflare::KVNamespace",
+  "id": "silvery-kv",
+  "fqn": "silvery-app/vrabota/silvery-kv",
+  "seq": 0,
+  "data": {},
+  "status": "created",
+  "output": {
+    "Symbol(alchemy::ResourceKind)": "cloudflare::KVNamespace",
+    "Symbol(alchemy::ResourceID)": "silvery-kv",
+    "Symbol(alchemy::ResourceFQN)": "silvery-app/vrabota/silvery-kv",
+    "Symbol(alchemy::ResourceScope)": {
+      "@scope": null
+    },
+    "Symbol(alchemy::ResourceSeq)": 0,
+    "type": "kv_namespace",
+    "namespaceId": "5ee81e33fe5b42d391fbd21716c4c785",
+    "title": "silvery-app-silvery-kv-vrabota",
+    "dev": {
+      "id": "silvery-kv",
+      "remote": true
+    },
+    "createdAt": 1771329164678,
+    "modifiedAt": 1771329164678
+  },
+  "props": {
+    "dev": {
+      "remote": true,
+      "force": true
+    }
+  }
+}

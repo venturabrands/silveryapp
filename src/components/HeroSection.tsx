@@ -34,14 +34,14 @@ const HeroSection = () => {
         </h1>
 
         <p className="max-w-xl mx-auto text-lg md:text-xl text-muted-foreground leading-relaxed mb-6 animate-fade-up-delay-2">
-          Free AI Sleep Expert, Sleep Diary, and personalised insights — all included.
+          Free AI Sleep Expert and personalised insights — all included.
         </p>
         <p className="text-sm text-muted-foreground mb-12 animate-fade-up-delay-2">
           Start improving your sleep tonight.
         </p>
 
         <div className="flex justify-center animate-fade-up-delay-3">
-          <Button variant="hero" size="lg" onClick={() => navigate("/dashboard")}>
+          <Button variant="hero" size="lg" onClick={() => navigate("/sleep-chat")}>
             Start Sleeping Better
           </Button>
         </div>

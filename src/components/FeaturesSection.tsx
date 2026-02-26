@@ -1,4 +1,4 @@
-import { CalendarClock, MessageCircle, BarChart3, Activity } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const primaryFeatures = [
@@ -9,29 +9,9 @@ const primaryFeatures = [
       "Chat with Silvery's Sleep Guide for personalised tips, bedding advice, and better nighttime routines.",
     link: "/sleep-chat",
   },
-  {
-    icon: CalendarClock,
-    title: "Sleep Diary",
-    description:
-      "Track your sleep schedule, daily habits, and view your statistics over time.",
-    link: "/sleep-diary",
-  },
 ];
 
-const secondaryFeatures = [
-  {
-    icon: Activity,
-    title: "Track Everything",
-    description:
-      "Monitor your sleep duration, quality, and patterns — from time in bed to restfulness scores.",
-  },
-  {
-    icon: BarChart3,
-    title: "Analytics",
-    description:
-      "Deep-dive into weekly and monthly trends with clear, visual insights.",
-  },
-];
+const secondaryFeatures = [];
 
 const FeaturesSection = () => {
   return (
@@ -45,7 +25,7 @@ const FeaturesSection = () => {
         </p>
 
         {/* Primary feature cards — match Dashboard layout */}
-        <div className="grid md:grid-cols-2 gap-6 mb-6">
+        <div className="grid md:grid-cols-1 gap-6 mb-6">
           {primaryFeatures.map((feature) => (
             <Link key={feature.title} to={feature.link} className="no-underline block">
               <div className="glass-card rounded-2xl p-8 transition-all duration-300 hover:border-primary/30 group cursor-pointer h-full">
@@ -55,9 +35,7 @@ const FeaturesSection = () => {
                 <h3 className="font-serif text-2xl font-semibold text-foreground mb-3">
                   {feature.title}
                 </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  {feature.description}
-                </p>
+                <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
               </div>
             </Link>
           ))}
@@ -76,9 +54,7 @@ const FeaturesSection = () => {
               <h3 className="font-serif text-2xl font-semibold text-foreground mb-3">
                 {feature.title}
               </h3>
-              <p className="text-muted-foreground leading-relaxed">
-                {feature.description}
-              </p>
+              <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
             </div>
           ))}
         </div>
