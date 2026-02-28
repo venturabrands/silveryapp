@@ -2,7 +2,7 @@
 
 ## App Summary
 
-Silvery Sleep Expert is an AI-powered sleep coaching app that helps users improve their sleep through personalised tips, a sleep diary, and habit tracking. It is **not a medical device** and does not diagnose or treat any condition.
+Silvery Sleep Expert is an AI-powered sleep coaching app that helps users improve their sleep through personalised tips and habit tracking. It is **not a medical device** and does not diagnose or treat any condition.
 
 ## Test Account
 
@@ -19,8 +19,7 @@ Password: [INSERT TEST PASSWORD HERE]
 
 1. **Login/Registration** — Email + password authentication (no social login required)
 2. **Sleep Chat** — AI-powered conversational sleep guide with streaming responses
-3. **Sleep Diary** — Weekly habit tracker with sleep efficiency metrics
-4. **Account Management** — View profile, manage chat history, delete conversations
+3. **Account Management** — View profile, manage chat history, delete conversations
 5. **Support & Legal** — Privacy policy, terms of service, medical disclaimer, contact info
 
 ## Important Disclaimers

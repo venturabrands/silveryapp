@@ -1,9 +1,12 @@
-import type { CapacitorConfig } from '@capacitor/cli';
+import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
-  appId: 'com.silvery.app',
-  appName: 'silvery-app',
-  webDir: 'dist/client'
+  appId: "com.silvery.chat",
+  appName: "SilveryChat",
+  webDir: "dist/client",
+  ios: {
+    backgroundColor: "#0a0c14",
+  },
 };
 
 export default config;

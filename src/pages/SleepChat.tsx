@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import { Moon, Send, ArrowLeft, Plus, Trash2, MessageCircle } from "lucide-react";
+import { Moon, Send, Plus, Trash2, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
@@ -12,14 +11,7 @@ const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
 if (!SERVER_URL) throw new Error("VITE_SERVER_URL is not set — cannot reach AI backend");
 const userId = getOrCreateUserId();
 
-const WELCOME_MESSAGE = `Hi there! I'm Silvery's Sleep Guide, your friendly sleep companion.
-
-Before we get started, I'd love to know a little about you! Could you share:
-- Your **name**
-- Your **age**
-- Your **gender**
-
-This helps me personalize my sleep advice just for you!`;
+const WELCOME_MESSAGE = `Welcome to Silvery Sleep Assistant! I'm here to help you sleep better using science-backed advice and tips tailored just for you. First — what should I call you?`;
 
 const INITIAL_MESSAGES = [
   {
@@ -54,6 +46,7 @@ const SleepChat = () => {
   const [isWelcomeGenerating, setIsWelcomeGenerating] = useState(true);
   const chatIdRef = useRef<string | null>(null);
   const welcomeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const triggerWelcomeAnimation = () => {
     setIsWelcomeGenerating(true);
@@ -93,7 +86,7 @@ const SleepChat = () => {
       new DefaultChatTransport({
         api: `${SERVER_URL}api/chat`,
         body: () => ({ userId, chatId: chatIdRef.current }),
-      })
+      }),
   );
 
   const { messages, sendMessage, setMessages, status } = useChat({
@@ -105,6 +98,10 @@ const SleepChat = () => {
   });
 
   const isLoading = status === "streaming" || status === "submitted";
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isLoading]);
 
   const startNewChat = () => {
     setMessages(INITIAL_MESSAGES);
@@ -125,7 +122,7 @@ const SleepChat = () => {
         role: m.role as "user" | "assistant",
         parts: [{ type: "text" as const, text: m.content }],
         createdAt: new Date(m.createdAt * 1000),
-      }))
+      })),
     );
     setIsWelcomeGenerating(false);
     setShowSidebar(false);
@@ -137,12 +134,6 @@ const SleepChat = () => {
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
         <div className="section-container flex items-center justify-between h-14">
           <div className="flex items-center gap-3">
-            <Link
-              to="/dashboard"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
                 <Moon className="w-4 h-4 text-primary" />
@@ -237,34 +228,43 @@ const SleepChat = () => {
               {msg.id === "welcome" && isWelcomeGenerating ? (
                 <div className="glass-card rounded-2xl px-5 py-3">
                   <div className="flex gap-1">
-                    <span className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                    <span className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                    <span className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                    <span
+                      className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce"
+                      style={{ animationDelay: "0ms" }}
+                    />
+                    <span
+                      className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce"
+                      style={{ animationDelay: "150ms" }}
+                    />
+                    <span
+                      className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce"
+                      style={{ animationDelay: "300ms" }}
+                    />
                   </div>
                 </div>
               ) : (
-              <div
-                className={`max-w-[85%] rounded-2xl px-4 py-3 ${
-                  msg.role === "user" ? "bg-primary text-primary-foreground" : "glass-card"
-                }`}
-              >
-                {msg.parts.map((part, j) => {
-                  switch (part.type) {
-                    case "text":
-                      return (
-                        <div key={`${msg.id}-${j}`}>
-                          {msg.role === "assistant" ? (
-                            <div className="prose prose-sm prose-invert max-w-none text-foreground [&_p]:my-1 [&_ul]:my-1 [&_li]:my-0.5">
-                              <ReactMarkdown>{part.text}</ReactMarkdown>
-                            </div>
-                          ) : (
-                            <p className="text-sm">{part.text}</p>
-                          )}
-                        </div>
-                      );
-                  }
-                })}
-              </div>
+                <div
+                  className={`max-w-[85%] rounded-2xl px-4 py-3 ${
+                    msg.role === "user" ? "bg-primary text-primary-foreground" : "glass-card"
+                  }`}
+                >
+                  {msg.parts.map((part, j) => {
+                    switch (part.type) {
+                      case "text":
+                        return (
+                          <div key={`${msg.id}-${j}`}>
+                            {msg.role === "assistant" ? (
+                              <div className="prose prose-sm prose-invert max-w-none text-foreground [&_p]:my-1 [&_ul]:my-1 [&_li]:my-0.5">
+                                <ReactMarkdown>{part.text}</ReactMarkdown>
+                              </div>
+                            ) : (
+                              <p className="text-sm">{part.text}</p>
+                            )}
+                          </div>
+                        );
+                    }
+                  })}
+                </div>
               )}
             </div>
           ))}
@@ -289,12 +289,13 @@ const SleepChat = () => {
               </div>
             </div>
           )}
+          <div ref={messagesEndRef} />
         </div>
       </main>
 
       {/* Input */}
       <div className="bg-background/80 backdrop-blur-md border-t border-border/50 py-3 pb-[env(safe-area-inset-bottom,12px)]">
-        <div className="section-container">
+        <div className="section-container pb-3">
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -313,13 +314,13 @@ const SleepChat = () => {
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask about sleep, bedding, or routines..."
               maxLength={2000}
-              className="flex-1 bg-muted border border-border/50 rounded-xl px-4 py-3 text-base text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+              className="flex-1 h-12 bg-muted border border-border/50 rounded-xl px-4 text-base text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
               disabled={isLoading}
             />
             <Button
               type="submit"
               disabled={!input.trim() || isLoading}
-              className="rounded-xl px-4 bg-primary text-primary-foreground hover:bg-primary/90"
+              className="rounded-xl h-12 w-12 bg-primary text-primary-foreground hover:bg-primary/90"
             >
               <Send className="w-4 h-4" />
             </Button>

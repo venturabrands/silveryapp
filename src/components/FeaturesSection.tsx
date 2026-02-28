@@ -24,7 +24,7 @@ const FeaturesSection = () => {
           Everything you need to sleep better — completely free with your account.
         </p>
 
-        {/* Primary feature cards — match Dashboard layout */}
+        {/* Primary feature cards */}
         <div className="grid md:grid-cols-1 gap-6 mb-6">
           {primaryFeatures.map((feature) => (
             <Link key={feature.title} to={feature.link} className="no-underline block">

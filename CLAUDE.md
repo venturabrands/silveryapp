@@ -48,7 +48,7 @@ To run a single test file: `npx vitest run src/path/to/test.ts`
 
 ### Key directories
 
-- `src/pages/` — One file per route (Index, Dashboard, SleepChat, SleepDiary, Admin, Support, Privacy, Terms, Disclaimer, NotFound)
+- `src/pages/` — One file per route (Index, SleepChat, Privacy, Terms, Disclaimer, NotFound)
 - `src/components/ui/` — shadcn/ui components (do not edit these directly; regenerate via shadcn CLI or edit carefully)
 - `src/integrations/supabase/` — Supabase client (`client.ts`) and auto-generated DB types (`types.ts`)
 - `server/` — Cloudflare Worker entrypoint (`worker.ts`) and Drizzle ORM schema/migrations (`db/`)
