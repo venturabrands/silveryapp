@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import { Moon, Send, Plus, Trash2, MessageCircle } from "lucide-react";
+import { Send, Plus, Trash2, MessageCircle } from "lucide-react";
+import iconChat from "@/assets/icon-chat.svg";
 import { Button } from "@/components/ui/button";
 import ReactMarkdown from "react-markdown";
 import { useChat } from "@ai-sdk/react";
@@ -135,9 +136,7 @@ const SleepChat = () => {
         <div className="section-container flex items-center justify-between h-14">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                <Moon className="w-4 h-4 text-primary" />
-              </div>
+              <img src={iconChat} className="w-8 h-8" alt="" />
               <div>
                 <p className="font-serif text-sm font-semibold text-foreground">
                   Silvery's Sleep Guide
